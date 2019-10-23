@@ -289,9 +289,9 @@ def main():
     )
     set_flags_in_settings_files()
 
-    if "{{ cookiecutter.open_source_license }}" == "Not open source":
+    if "{{ cookiecutter.license }}" == "Not open source":
         remove_open_source_files()
-    if "{{ cookiecutter.open_source_license}}" != "GPLv3":
+    if "{{ cookiecutter.license}}" != "GPLv3":
         remove_gplv3_files()
 
     if "{{ cookiecutter.use_pycharm }}".lower() == "n":

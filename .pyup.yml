@@ -8,10 +8,10 @@ update: all
 # allowed: True, False
 pin: True
 
-# Specify requirement files by hand, pyup seems to struggle to 
+# Specify requirement files by hand, pyup seems to struggle to
 # find the ones in the project_slug folder
 requirements:
   - "requirements.txt"
-  - "{{cookiecutter.project_slug}}/requirements/base.txt"
-  - "{{cookiecutter.project_slug}}/requirements/local.txt"
-  - "{{cookiecutter.project_slug}}/requirements/production.txt"
+  - "{{cookiecutter.repo_name}}/requirements/base.txt"
+  - "{{cookiecutter.repo_name}}/requirements/local.txt"
+  - "{{cookiecutter.repo_name}}/requirements/production.txt"

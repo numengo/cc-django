@@ -1,0 +1,27 @@
+[
+    {
+        "pk": 1,
+        "model": "sites.site",
+        "fields": {
+            "domain": "{{ cookiecutter.domain_name }}", "name": "{{ cookiecutter.domain_name }}"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "users.user",
+        "fields": {
+            "password": "pbkdf2_sha256$120000$wzMv4JS1gxjb$bn3GDY0fkbkRi1uxp5VgEUdGtIi+gOgtI13vsU9QhRI=",
+            "last_login": null,
+            "is_superuser": true,
+            "username": "admin",
+            "first_name": "",
+            "last_name": "",
+            "email": "{{cookiecutter.email}}",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "1978-07-25T05:30:00.000Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    }
+]

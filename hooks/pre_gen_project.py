@@ -27,7 +27,7 @@ assert (
 ), "'{}' project slug should be all lowercase".format(project_slug)
 
 assert (
-    "\\" not in "{{ cookiecutter.author_name }}"
+    "\\" not in "{{ cookiecutter.full_name }}"
 ), "Don't include backslashes in author name."
 
 if "{{ cookiecutter.use_docker }}".lower() == "n":
