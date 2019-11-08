@@ -1,27 +1,28 @@
 [
-    {
-        "pk": 1,
-        "model": "sites.site",
-        "fields": {
-            "domain": "{{ cookiecutter.domain_name }}", "name": "{{ cookiecutter.domain_name }}"
-        }
-    },
-    {
-        "pk": 1,
-        "model": "users.user",
-        "fields": {
-            "password": "pbkdf2_sha256$120000$wzMv4JS1gxjb$bn3GDY0fkbkRi1uxp5VgEUdGtIi+gOgtI13vsU9QhRI=",
-            "last_login": null,
-            "is_superuser": true,
-            "username": "admin",
-            "first_name": "",
-            "last_name": "",
-            "email": "{{cookiecutter.email}}",
-            "is_staff": true,
-            "is_active": true,
-            "date_joined": "1978-07-25T05:30:00.000Z",
-            "groups": [],
-            "user_permissions": []
-        }
+  {
+    "pk": 1,
+    "model": "sites.site",
+    "fields": {
+      "domain": "{{ cookiecutter.domain_name }}",
+      "name": "{{ cookiecutter.domain_name }}"
     }
+  },
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "password": "argon2$argon2i$v=19$m=512,t=2,p=2$cjdLYVZZT0c5NFJT$O6EJ8z2rTX4cEMdpPz9BSA",
+      "last_login": "2019-10-27T10:59:17.654Z",
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2019-10-27T10:52:34.320Z",
+      "email": "admin@mywayof.life",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
 ]

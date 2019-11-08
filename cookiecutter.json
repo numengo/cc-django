@@ -48,11 +48,12 @@
 
   "debug": "n",
 
-  "use_django_cms": "n",
+  "use_django_cms": "y",
   "use_django_rest_framework": "y",
   "use_zappa": "y",
 
   "_copy_without_render": [
+    "*/templates/base_cms.html",
     "*/templates/fullwidth.html",
     "*/templates/sidebar_left.html",
     "*/templates/sidebar_right.html"

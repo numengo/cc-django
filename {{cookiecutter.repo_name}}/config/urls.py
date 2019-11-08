@@ -1,30 +1,54 @@
 from django.conf import settings
 from django.urls import include, path, re_path
 from django.conf.urls.static import static
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
+from django.contrib.sitemaps.views import sitemap
+from django.views.static import serve
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+{% if cookiecutter.use_django_cms == 'y' -%}
+from cms.sitemaps import CMSSitemap
 
 urlpatterns = [
-    # Django Admin, use {% raw %}{% url 'admin:index' %}{% endraw %}
-    re_path(r'^admin/', admin.site.urls),  # NOQA
-    {%- if cookiecutter.use_django_cms == 'y' %}
-    # CMS
-    re_path(r'^', include('cms.urls')),
-    {%- else -%}
+    re_path(r'^sitemap\.xml$', sitemap,
+        {'sitemaps': {'cmspages': CMSSitemap}}),
+]
+{% else %}
+urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path(
-        "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
-    ),
-    {% endif -%}
+    path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     path(settings.ADMIN_URL, admin.site.urls),
+]
+{%- endif %}
+
+urlpatterns += i18n_patterns(
+    # Django Admin, use {% raw %}{% url 'admin:index' %}{% endraw %}
     # User management
-    path("users/", include("{{ cookiecutter.project_slug }}.users.urls", namespace="users")),
-    path("accounts/", include("allauth.urls")),
+    re_path(r"^users/", include("{{ cookiecutter.project_slug }}.users.urls", namespace="users")),
+    re_path(r"^accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    {% if cookiecutter.use_django_cms == 'y' -%}
+    re_path(r'^admin/', admin.site.urls),   # NOQA
+    # CMS - should be last
+    re_path(r'^', include('cms.urls')),
+    {%- endif %}
+)
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
+    {% if cookiecutter.use_django_cms == 'y' -%}
+    # This is only needed when using runserver.
+    urlpatterns = [
+        re_path(r'^media/(?P<path>.*)$', serve,
+            {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}, name="media"),
+        ] + staticfiles_urlpatterns() + urlpatterns
+
+    {%- endif %}
+
     # This allows the error pages to be debugged during development, just visit
     # these url in browser to see how these error pages look like.
     urlpatterns += [
