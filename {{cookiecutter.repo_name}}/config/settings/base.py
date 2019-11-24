@@ -6,8 +6,8 @@ import environ
 
 ROOT_DIR = (
     environ.Path(__file__) - 3
-)  # ({{ cookiecutter.project_slug }}/config/settings/base.py - 3 = {{ cookiecutter.project_slug }}/)
-APPS_DIR = ROOT_DIR.path("{{ cookiecutter.project_slug }}")
+)  # ({{ cookiecutter.app_name }}/config/settings/base.py - 3 = {{ cookiecutter.app_name }}/)
+APPS_DIR = ROOT_DIR.path("{{ cookiecutter.app_name }}")
 
 env = environ.Env()
 
@@ -46,7 +46,7 @@ LOCALE_PATHS = [ROOT_DIR.path("locale")]
 DATABASES = {"default": env.db("DATABASE_URL")}
 {%- else %}
 DATABASES = {
-    "default": env.db("DATABASE_URL", default="postgres://{% if cookiecutter.windows == 'y' %}localhost{% endif %}/{{cookiecutter.project_slug}}")
+    "default": env.db("DATABASE_URL", default="postgres://{% if cookiecutter.windows == 'y' %}localhost{% endif %}/{{cookiecutter.app_name}}")
 }
 {%- endif %}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
@@ -80,12 +80,18 @@ THIRD_PARTY_APPS = [
     "django_celery_beat",
 {%- endif %}
     "reversion",
+    "ngoutils",
 ]
 
 LOCAL_APPS = [
-    "ngoutils",
-    "{{ cookiecutter.project_slug }}.users.apps.UsersConfig"
+    #### PROTECTED REGION ID({{ cookiecutter.app_name }}.settings.local_apps.gen) ENABLED START ####
+        # automatically filled by code generator
+    #### PROTECTED REGION END ####
+
+    #### PROTECTED REGION ID({{ cookiecutter.app_name }}.settings.local_apps.user) ENABLED START ####
+    "{{ cookiecutter.app_name }}.users.apps.UsersConfig"
     # Your stuff: custom apps go here
+    #### PROTECTED REGION END ####
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -93,7 +99,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "{{ cookiecutter.project_slug }}.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "{{ cookiecutter.app_name }}.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -194,7 +200,7 @@ TEMPLATES = [
                 {% endif -%}
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "{{ cookiecutter.project_slug }}.utils.context_processors.settings_context",
+                "{{ cookiecutter.app_name }}.utils.context_processors.settings_context",
             ],
         },
     }
@@ -296,9 +302,9 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_ADAPTER = "{{cookiecutter.project_slug}}.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "{{cookiecutter.app_name}}.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = "{{cookiecutter.project_slug}}.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "{{cookiecutter.app_name}}.users.adapters.SocialAccountAdapter"
 
 {% if cookiecutter.use_compressor == 'y' -%}
 # django-compressor
@@ -399,5 +405,7 @@ MIGRATION_MODULES = {
 }
 {%- endif %}
 
+#### PROTECTED REGION ID({{ cookiecutter.app_name }}.settings.user) ENABLED START ####
 # Your stuff...
 # ------------------------------------------------------------------------------
+#### PROTECTED REGION END ####

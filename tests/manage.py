@@ -23,8 +23,8 @@ if __name__ == "__main__":
         raise
 
     # This allows easy placement of apps within the interior
-    # {{ cookiecutter.project_slug }} directory.
+    # {{ cookiecutter.app_name }} directory.
     current_path = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(os.path.join(current_path, "{{ cookiecutter.project_slug }}"))
+    sys.path.append(os.path.join(current_path, "{{ cookiecutter.app_name }}"))
 
     execute_from_command_line(sys.argv)

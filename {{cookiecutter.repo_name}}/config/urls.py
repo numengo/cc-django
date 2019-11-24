@@ -27,7 +27,7 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     # Django Admin, use {% raw %}{% url 'admin:index' %}{% endraw %}
     # User management
-    re_path(r"^users/", include("{{ cookiecutter.project_slug }}.users.urls", namespace="users")),
+    re_path(r"^users/", include("{{ cookiecutter.app_name }}.users.urls", namespace="users")),
     re_path(r"^accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     {% if cookiecutter.use_django_cms == 'y' -%}

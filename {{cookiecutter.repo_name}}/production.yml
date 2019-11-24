@@ -10,7 +10,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-    image: {{ cookiecutter.project_slug }}_production_django
+    image: {{ cookiecutter.app_name }}_production_django
     depends_on:
       - postgres
       - redis
@@ -23,7 +23,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
-    image: {{ cookiecutter.project_slug }}_production_postgres
+    image: {{ cookiecutter.app_name }}_production_postgres
     volumes:
       - production_postgres_data:/var/lib/postgresql/data
       - production_postgres_data_backups:/backups
@@ -34,7 +34,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/traefik/Dockerfile
-    image: {{ cookiecutter.project_slug }}_production_traefik
+    image: {{ cookiecutter.app_name }}_production_traefik
     depends_on:
       - django
     volumes:
@@ -49,17 +49,17 @@ services:
 
   celeryworker:
     <<: *django
-    image: {{ cookiecutter.project_slug }}_production_celeryworker
+    image: {{ cookiecutter.app_name }}_production_celeryworker
     command: /start-celeryworker
 
   celerybeat:
     <<: *django
-    image: {{ cookiecutter.project_slug }}_production_celerybeat
+    image: {{ cookiecutter.app_name }}_production_celerybeat
     command: /start-celerybeat
 
   flower:
     <<: *django
-    image: {{ cookiecutter.project_slug }}_production_flower
+    image: {{ cookiecutter.app_name }}_production_flower
     ports:
       - "5555:5555"
     command: /start-flower

@@ -41,7 +41,7 @@ To fix this, you can either:
 Others
 ------
 
-#. ``project_slug`` must be a valid Python module name or you will have issues on imports.
+#. ``app_name`` must be a valid Python module name or you will have issues on imports.
 
 #. ``jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'now'.``: please upgrade your cookiecutter version to >= 1.4 (see `#528`_)
 

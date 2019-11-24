@@ -1,6 +1,6 @@
 from django.urls import path
 
-from {{ cookiecutter.project_slug }}.users.views import (
+from {{ cookiecutter.app_name }}.users.views import (
     user_redirect_view,
     user_update_view,
     user_detail_view,

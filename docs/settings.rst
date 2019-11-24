@@ -18,7 +18,7 @@ DJANGO_READ_DOT_ENV_FILE                READ_DOT_ENV_FILE           False       
 ======================================= =========================== ============================================== ======================================================================
 Environment Variable                    Django Setting              Development Default                            Production Default
 ======================================= =========================== ============================================== ======================================================================
-DATABASE_URL                            DATABASES                   auto w/ Docker; postgres://project_slug w/o    raises error
+DATABASE_URL                            DATABASES                   auto w/ Docker; postgres://app_name w/o    raises error
 DJANGO_ADMIN_URL                        n/a                         'admin/'                                       raises error
 DJANGO_DEBUG                            DEBUG                       True                                           False
 DJANGO_SECRET_KEY                       SECRET_KEY                  auto-generated                                 raises error

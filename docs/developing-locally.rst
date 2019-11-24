@@ -29,7 +29,7 @@ First things first.
 
 #. Create a new PostgreSQL database using createdb_: ::
 
-    $ createdb <what you have entered as the project_slug at setup stage> -U postgres --password <password>
+    $ createdb <what you have entered as the app_name at setup stage> -U postgres --password <password>
 
    .. note::
 

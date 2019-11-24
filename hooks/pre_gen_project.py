@@ -16,15 +16,15 @@ INFO = "\x1b[1;33m [INFO]: "
 HINT = "\x1b[3;33m"
 SUCCESS = "\x1b[1;32m [SUCCESS]: "
 
-project_slug = "{{ cookiecutter.project_slug }}"
-if hasattr(project_slug, "isidentifier"):
+app_name = "{{ cookiecutter.app_name }}"
+if hasattr(app_name, "isidentifier"):
     assert (
-        project_slug.isidentifier()
-    ), "'{}' project slug is not a valid Python identifier.".format(project_slug)
+        app_name.isidentifier()
+    ), "'{}' project slug is not a valid Python identifier.".format(app_name)
 
 assert (
-    project_slug == project_slug.lower()
-), "'{}' project slug should be all lowercase".format(project_slug)
+    app_name == app_name.lower()
+), "'{}' project slug should be all lowercase".format(app_name)
 
 assert (
     "\\" not in "{{ cookiecutter.full_name }}"

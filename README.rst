@@ -152,11 +152,11 @@ Answer the prompts with your own desired options_. For example::
     Receiving objects: 100% (550/550), 127.66 KiB | 58 KiB/s, done.
     Resolving deltas: 100% (283/283), done.
     project_name [Project Name]: Reddit Clone
-    project_slug [reddit_clone]: reddit
+    app_name [reddit_clone]: reddit
     author_name [Daniel Roy Greenfeld]: Daniel Greenfeld
     email [you@example.com]: pydanny@gmail.com
     description [Behold My Awesome Project!]: A reddit clone.
-    domain_name [example.com]: myreddit.com
+    domain [example.com]: myreddit.com
     version [0.1.0]: 0.0.1
     timezone [UTC]: America/Los_Angeles
     use_whitenoise [n]: n

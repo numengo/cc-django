@@ -92,9 +92,9 @@ def remove_packagejson_file():
 def remove_celery_files():
     file_names = [
         os.path.join("config", "celery_app.py"),
-        os.path.join("{{ cookiecutter.project_slug }}", "users", "tasks.py"),
+        os.path.join("{{ cookiecutter.app_name }}", "users", "tasks.py"),
         os.path.join(
-            "{{ cookiecutter.project_slug }}", "users", "tests", "test_tasks.py"
+            "{{ cookiecutter.app_name }}", "users", "tests", "test_tasks.py"
         ),
     ]
     for file_name in file_names:
@@ -289,9 +289,7 @@ def main():
     )
     set_flags_in_settings_files()
 
-    if "{{ cookiecutter.license }}" == "Not open source":
-        remove_open_source_files()
-    if "{{ cookiecutter.license}}" != "GPLv3":
+    if "{{ cookiecutter.license}}" != "GNU General Public License v3":
         remove_gplv3_files()
 
     if "{{ cookiecutter.use_pycharm }}".lower() == "n":

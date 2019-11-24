@@ -1,7 +1,7 @@
 {{cookiecutter.project_name}}
 {{ '=' * cookiecutter.project_name|length }}
 
-{{cookiecutter.project_short_description}}
+{{cookiecutter.short_description}}
 
 .. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
      :target: https://github.com/pydanny/cookiecutter-django/
@@ -9,10 +9,9 @@
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
      :target: https://github.com/ambv/black
      :alt: Black code style
-{% if cookiecutter.license != "Not open source" %}
+
 
 :License: {{cookiecutter.license}}
-{% endif %}
 
 Settings
 --------
@@ -42,7 +41,7 @@ Running type checks with mypy:
 
 ::
 
-  $ mypy {{cookiecutter.project_slug}}
+  $ mypy {{cookiecutter.app_name}}
 
 Test coverage
 ^^^^^^^^^^^^^
@@ -78,7 +77,7 @@ To run a celery worker:
 
 .. code-block:: bash
 
-    cd {{cookiecutter.project_slug}}
+    cd {{cookiecutter.app_name}}
     celery -A config.celery_app worker -l info
 
 Please note: For Celery's import magic to work, it is important *where* the celery commands are run. If you are in the same folder with *manage.py*, you should be right.

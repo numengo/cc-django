@@ -15,7 +15,7 @@
         <attribute_value VALUE="2020"/>
     </attribute_name>
 </attribute_registry>
-<node FOLDED="false" ID="ID_822712631" CREATED="1564511595253" MODIFIED="1574098250061"><richcontent TYPE="NODE">
+<node FOLDED="false" ID="ID_822712631" CREATED="1564511595253" MODIFIED="1574558903164"><richcontent TYPE="NODE">
 
 <html>
   <head>
@@ -23,17 +23,17 @@
   </head>
   <body>
     <h1>
-      {{cookiecutter.project_name}}
+      {{cookiecutter.project_name }}
     </h1>
-    <h2>
-      {{cookiecutter.domain_name}}
-    </h2>
   </body>
 </html>
+
 </richcontent>
 <attribute_layout NAME_WIDTH="55.49999834597116 pt" VALUE_WIDTH="110.99999669194231 pt"/>
 <attribute NAME="version" VALUE="{{cookiecutter.version}}"/>
-<attribute NAME="project_slug" VALUE="{{cookiecutter.project_slug}}"/>
+<attribute NAME="$id" VALUE="{{cookiecutter.domain_name}}#"/>
+<attribute NAME="domain_name" VALUE="{{cookiecutter.domain_name}}"/>
+<attribute NAME="app_name" VALUE="{{cookiecutter.app_name}}"/>
 <attribute NAME="repo_name" VALUE="{{cookiecutter.repo_name}}"/>
 <attribute NAME="languages" VALUE="{{cookiecutter.languages}}"/>
 <attribute NAME="timezone" VALUE="{{cookiecutter.timezone}}"/>
@@ -41,7 +41,7 @@
 <attribute NAME="postgresql_version" VALUE="{{cookiecutter.postgresql_version}}"/>
 <attribute NAME="license" VALUE="Numengo"/>
 <hook NAME="MapStyle">
-    <properties show_icon_for_attributes="true" fit_to_viewport="false" show_note_icons="true"/>
+    <properties fit_to_viewport="false" show_icon_for_attributes="true" show_note_icons="true"/>
 
 <map_styles>
 <stylenode LOCALIZED_TEXT="styles.root_node" STYLE="oval" UNIFORM_SHAPE="true" VGAP_QUANTITY="24.0 pt">
@@ -146,7 +146,7 @@
 </stylenode>
 </map_styles>
 </hook>
-<node TEXT="{{ cookiecutter.project_short_description }}" POSITION="right" ID="ID_439081159" CREATED="1564513063544" MODIFIED="1574097100051">
+<node TEXT="{{ cookiecutter.short_description }}" POSITION="right" ID="ID_439081159" CREATED="1564513063544" MODIFIED="1574097100051">
 <icon BUILTIN="idea"/>
 <edge COLOR="#7c007c"/>
 </node>

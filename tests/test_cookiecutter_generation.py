@@ -16,11 +16,11 @@ RE_OBJ = re.compile(PATTERN)
 def context():
     return {
         "project_name": "My Test Project",
-        "project_slug": "my_test_project",
+        "app_name": "my_test_project",
         "author_name": "Test Author",
         "email": "test@example.com",
         "description": "A short description of the project.",
-        "domain_name": "example.com",
+        "domain": "example.com",
         "version": "0.1.0",
         "timezone": "UTC",
     }
@@ -101,7 +101,7 @@ def test_project_generation(cookies, context, context_combination):
     result = cookies.bake(extra_context={**context, **context_combination})
     assert result.exit_code == 0
     assert result.exception is None
-    assert result.project.basename == context["project_slug"]
+    assert result.project.basename == context["app_name"]
     assert result.project.isdir()
 
     paths = build_files_list(str(result.project))
@@ -145,7 +145,7 @@ def test_travis_invokes_pytest(cookies, context):
 
     assert result.exit_code == 0
     assert result.exception is None
-    assert result.project.basename == context["project_slug"]
+    assert result.project.basename == context["app_name"]
     assert result.project.isdir()
 
     with open(f"{result.project}/.travis.yml", "r") as travis_yml:
@@ -158,7 +158,7 @@ def test_travis_invokes_pytest(cookies, context):
 @pytest.mark.parametrize("slug", ["project slug", "Project_Slug"])
 def test_invalid_slug(cookies, context, slug):
     """Invalid slug should failed pre-generation hook."""
-    context.update({"project_slug": slug})
+    context.update({"app_name": slug})
 
     result = cookies.bake(extra_context=context)
 

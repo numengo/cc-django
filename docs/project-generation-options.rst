@@ -4,7 +4,7 @@ Project Generation Options
 project_name:
     Your project's human-readable name, capitals and spaces allowed.
 
-project_slug:
+app_name:
     Your project's slug without dashes or spaces. Used to name your repo
     and in other places where a Python-importable version of your project name
     is needed.
@@ -18,7 +18,7 @@ author_name:
 email:
     The email address you want to identify yourself in the project.
 
-domain_name:
+domain:
     The domain name you plan to use for your project once it goes live.
     Note that it can be safely changed later on whenever you need to.
 

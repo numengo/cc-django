@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.hashers import is_password_usable
 
+
 class User(AbstractUser):
     # https://www.fomfus.com/articles/how-to-use-email-as-username-for-django-authentication-removing-the-username
     email = EmailField(_('email address'), unique=True)
