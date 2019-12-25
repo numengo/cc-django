@@ -82,5 +82,28 @@ html5lib>=1.0.1
 django-filer
 easy-thumbnails
 django-categories # https://github.com/callowayproject/django-categories
+
+{%- if cookiecutter.use_django_shop == 'y' %}
+django_filters
+django-parler
+drf-haystack
+django-post_office
+{%- endif %}
+{%- if cookiecutter.use_paypal == 'y' %}
+djangoshop-paypal
+{%- endif %}
+{%- if cookiecutter.use_stripe == 'y' %}
+djangoshop-stripe
+{%- endif %}
+{%- if cookiecutter.use_sendcloud == 'y' %}
+djangoshop-sendcloud
+{%- endif %}
 # PROTECTED REGION END
 {%- endif %}
+
+# PROTECTED REGION ID({{cookiecutter.app_name}}.requirements.base) ENABLED START
+{%- set i_deps = cookiecutter.requirements_install|replace(' ','') %}
+{%- for dep in i_deps.split(',') %}
+{{dep}}
+{% endfor -%}
+# PROTECTED REGION END

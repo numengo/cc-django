@@ -7,6 +7,7 @@
   "domain": "http://www.{{cookiecutter.domain_name}}",
   "repo_name": "django-app-{{ cookiecutter.project_name|lower|replace(' ','-') }}",
   "app_name": "{{ cookiecutter.project_name.lower()|replace(' ', '_')|replace('-', '_') }}",
+  "appName": "{{ cookiecutter.project_name|replace('-', '')|replace(' ', '') }}",
   "short_description": "An example django application. Generated with cc-django.",
   "year": "2019",
   "keywords": "keywords",
@@ -43,10 +44,30 @@
   "use_travisci": "n",
   "keep_local_envs_in_vcs": "y",
   "debug": "n",
+  "use_i18n": "y",
   "use_django_cms": "y",
   "use_django_rest_framework": "y",
   "use_zappa": "y",
+  "use_django_shop": "y",
+  "use_paypal": "n",
+  "use_stripe": "y",
+  "use_sendcloud": "n",
+  "printable_invoice": "y",
+  "delivery_handling": [
+    "partial",
+    "common",
+    "n"
+  ],
+  "products_model": [
+    "polymorphic",
+    "smartcard",
+    "commodity"
+  ],
+  "requirements_install": "",
+  "setup_requirements": "",
+  "test_requirements": "",
   "_copy_without_render": [
+    "*/templates/cms/welcome_.html",
     "*/templates/base_cms.html",
     "*/templates/fullwidth.html",
     "*/templates/sidebar_left.html",

@@ -1,21 +1,6 @@
 <map version="freeplane 1.7.0">
 <!--To view this file, download free mind mapping software Freeplane from http://freeplane.sourceforge.net -->
-<attribute_registry>
-    <attribute_name MANUAL="true" RESTRICTED="true" NAME="license">
-        <attribute_value VALUE=""/>
-        <attribute_value VALUE="Apache"/>
-        <attribute_value VALUE="BSD-2"/>
-        <attribute_value VALUE="BSD-3"/>
-        <attribute_value VALUE="MIT"/>
-        <attribute_value VALUE="Numengo"/>
-    </attribute_name>
-    <attribute_name MANUAL="true" RESTRICTED="true" NAME="release year">
-        <attribute_value VALUE="2018"/>
-        <attribute_value VALUE="2019"/>
-        <attribute_value VALUE="2020"/>
-    </attribute_name>
-</attribute_registry>
-<node FOLDED="false" ID="ID_822712631" CREATED="1564511595253" MODIFIED="1574558903164"><richcontent TYPE="NODE">
+<node FOLDED="false" ID="ID_822712631" CREATED="1564511595253" MODIFIED="1577179664205"><richcontent TYPE="NODE">
 
 <html>
   <head>
@@ -27,11 +12,12 @@
     </h1>
   </body>
 </html>
-
 </richcontent>
 <attribute_layout NAME_WIDTH="55.49999834597116 pt" VALUE_WIDTH="110.99999669194231 pt"/>
+<attribute NAME="cc_template" VALUE="cc-django"/>
 <attribute NAME="version" VALUE="{{cookiecutter.version}}"/>
-<attribute NAME="$id" VALUE="{{cookiecutter.domain_name}}#"/>
+<attribute NAME="$id" VALUE="{{cookiecutter.domain}}#"/>
+<attribute NAME="domain" VALUE="{{cookiecutter.domain}}"/>
 <attribute NAME="domain_name" VALUE="{{cookiecutter.domain_name}}"/>
 <attribute NAME="app_name" VALUE="{{cookiecutter.app_name}}"/>
 <attribute NAME="repo_name" VALUE="{{cookiecutter.repo_name}}"/>
@@ -39,9 +25,9 @@
 <attribute NAME="timezone" VALUE="{{cookiecutter.timezone}}"/>
 <attribute NAME="keywords" VALUE="{{cookiecutter.keywords}}"/>
 <attribute NAME="postgresql_version" VALUE="{{cookiecutter.postgresql_version}}"/>
-<attribute NAME="license" VALUE="Numengo"/>
+<attribute NAME="license" VALUE="NUMENGO"/>
 <hook NAME="MapStyle">
-    <properties fit_to_viewport="false" show_icon_for_attributes="true" show_note_icons="true"/>
+    <properties show_icon_for_attributes="true" fit_to_viewport="false" show_note_icons="true"/>
 
 <map_styles>
 <stylenode LOCALIZED_TEXT="styles.root_node" STYLE="oval" UNIFORM_SHAPE="true" VGAP_QUANTITY="24.0 pt">
@@ -192,6 +178,7 @@
 <node TEXT="urls" ID="ID_46120739" CREATED="1564524510165" MODIFIED="1564562297599">
 <icon BUILTIN="mindmap"/>
 </node>
+<node TEXT="static" ID="ID_1821767778" CREATED="1574847273070" MODIFIED="1574847274807"/>
 </node>
 </node>
 </map>

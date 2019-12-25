@@ -1,0 +1,38 @@
+@import "variables";
+
+html {
+	@include media-breakpoint-up(lg) {
+		position: relative;
+		min-height: 100%;
+	}
+}
+body {
+	main {
+		padding-bottom: $body-footer-margin;
+	}
+	@include media-breakpoint-up(lg) {
+		margin-bottom: $body-footer-height;
+	}
+	.footer {
+		width: 100%;
+		color: $body-footer-color;
+		background: $body-footer-bg;
+		padding-top: 20px;
+		padding-bottom: 20px;
+		@include media-breakpoint-up(lg) {
+			height: $body-footer-height;
+			position: absolute;
+			bottom: 0;
+		}
+		a {
+			color: $body-footer-link-color;
+			text-decoration: none;
+			&:hover {
+				color: $body-footer-link-hover-color;
+			}
+			&:active {
+				color: $body-footer-link-active-color;
+			}
+		}
+	}
+}
