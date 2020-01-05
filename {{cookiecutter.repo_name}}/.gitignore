@@ -333,6 +333,14 @@ tags
 pyvenv.cfg
 pip-selfcheck.json
 .env
+.env
+.envs
+.venv
+env/
+venv/
+ENV/
+
+
 {% endif %}
 
 ### Project template
