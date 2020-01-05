@@ -20,7 +20,7 @@ from djangocms_text_ckeditor.fields import HTMLField
     {%- if cookiecutter.use_i18n == 'y' %}
 from polymorphic.query import PolymorphicQuerySet
 from parler.managers import TranslatableManager, TranslatableQuerySet
-from parler.models import TranslatableModelMixin, TranslatedFieldsModel{% if cookiecutter.products_model == 'polymorphic' %}, TranslatedFields{% endif %}
+from parler.models import TranslatableModel, TranslatedFieldsModel{% if cookiecutter.products_model == 'polymorphic' %}, TranslatedFields{% endif %}
 from parler.fields import TranslatedField
     {%- endif %}
     {%- if cookiecutter.products_model == 'polymorphic' %}
@@ -108,7 +108,7 @@ class ProductManager(BaseProductManager):
 
 
 @python_2_unicode_compatible
-class Product(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} TranslatableModelMixin,{% endif %} BaseProduct):
+class Product(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} TranslatableModel,{% endif %} BaseProduct):
     """
     Base class to describe a polymorphic product. Here we declare common fields available in all of
     our different product types. These common fields are also used to build up the view displaying
@@ -254,7 +254,7 @@ class SmartCard(Product):
 
 
 @python_2_unicode_compatible
-class SmartCard(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} TranslatableModelMixin,{% endif %} BaseProduct):
+class SmartCard(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} TranslatableModel,{% endif %} BaseProduct):
     product_name = models.CharField(
         max_length=255,
         verbose_name=_("Product Name"),
@@ -307,29 +307,10 @@ class SmartCard(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} Tran
         help_text=_("Net price for this product"),
     )
 
-    card_type = models.CharField(
-        _("Card Type"),
-        choices=[2 * ('{}{}'.format(s, t),)
-                 for t in ['SD', 'SDXC', 'SDHC', 'SDHC II'] for s in ['', 'micro ']],
-        max_length=15,
-    )
-
-    speed = models.CharField(
-        _("Transfer Speed"),
-        choices=[(str(s), "{} MB/s".format(s))
-                 for s in [4, 20, 30, 40, 48, 80, 95, 280]],
-        max_length=8,
-    )
-
     product_code = models.CharField(
         _("Product code"),
         max_length=255,
         unique=True,
-    )
-
-    storage = models.PositiveIntegerField(
-        _("Storage Capacity"),
-        help_text=_("Storage capacity in GB"),
     )
 
     {%- if cookiecutter.use_i18n != 'y' %}

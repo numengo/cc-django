@@ -84,9 +84,15 @@ easy-thumbnails
 django-categories # https://github.com/callowayproject/django-categories
 
 {%- if cookiecutter.use_django_shop == 'y' %}
+django-angular
+djangocms-bootstrap
+libsass
+django-sass-processor
 django_filters
 django-parler
+django-parler-rest
 drf-haystack
+elasticsearch>=1.0.0,<2.0.0
 django-post_office
 {%- endif %}
 {%- if cookiecutter.use_paypal == 'y' %}

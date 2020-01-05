@@ -38,8 +38,8 @@ class Command(BaseCommand):
 {%- endif %}
             if product.get('product_code'){% if cookiecutter.products_model == 'commodity' %} != {% else %} == {% endif %}"parklake-springfield":
                 continue
-            ProductModel = ContentType.objects.get(app_label='{{ cookiecutter.app_name }}', model=product_model)
-            class_name = '{{ cookiecutter.app_name }}.management.serializers.' + ProductModel.model_class().__name__ + 'Serializer'
+            ProductModel = ContentType.objects.get(app_label='{{ cookiecutter.app_name }}_shop', model=product_model)
+            class_name = '{{ cookiecutter.app_name }}.shop.management.serializers.' + ProductModel.model_class().__name__ + 'Serializer'
             serializer_class = import_string(class_name)
             serializer = serializer_class(data=product)
             assert serializer.is_valid(), serializer.errors

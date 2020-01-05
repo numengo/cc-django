@@ -12,6 +12,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 {% endif -%}
 from .base import *  # noqa
 from .base import env
+from django.utils.translation import ugettext_lazy as _
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -65,6 +66,30 @@ SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)
 SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
     "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True
 )
+
+# DJANGO SHOP PAYMENTS
+# ------------------------------------------------------------------------------
+{% if cookiecutter.use_paypal == "y" -%}
+SHOP_PAYPAL = {
+    "API_ENDPOINT": "https://api.paypal.com",
+    "MODE": "live",
+    "CLIENT_ID": os.getenv("PAYPAL_CLIENT_ID"),
+    "CLIENT_SECRET": os.getenv("PAYPAL_CLIENT_SECRET"),
+    "PURCHASE_DESCRIPTION": _("Thanks for purchasing at {{ cookiecutter.project_name }}"),
+}
+{%- endif %}
+
+{% if cookiecutter.use_stripe == "y" -%}
+SHOP_STRIPE = {
+    "PUBKEY": os.getenv("STRIPE_PUBKEY", "pk_test_HlEp5oZyPonE21svenqowhXp"),
+    "APIKEY": os.getenv("STRIPE_APIKEY", "sk_test_xUdHLeFasmOUDvmke4DHGRDP"),
+    "PURCHASE_DESCRIPTION": _("Thanks for purchasing at {{ cookiecutter.project_name }}"),
+}
+
+    {%- if cookiecutter.debug == "y" %}
+SHOP_STRIPE_PREFILL = True
+    {%- endif %}
+{%- endif %}
 
 {% if cookiecutter.cloud_provider != 'None' -%}
 # STORAGES

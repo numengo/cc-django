@@ -52,25 +52,25 @@ class Command(BaseCommand):
 {%- if cookiecutter.use_compressor == 'y' %}
         self.clear_compressor_cache()
 {%- endif %}
-        call_command('migrate')
+        #call_command('migrate')
         initialize_file = os.path.join(settings.WORK_DIR, '.initialize')
         if os.path.isfile(initialize_file):
             self.stdout.write("Initializing project {{ cookiecutter.app_name }}")
-            call_command('makemigrations', '{{ cookiecutter.app_name }}')
-            call_command('migrate')
+            #call_command('makemigrations', '{{ cookiecutter.app_name }}')
+            #call_command('migrate')
             os.remove(initialize_file)
-            call_command('loaddata', 'skeleton')
-            call_command('shop', 'check-pages', add_recommended=True)
-            call_command('assign_iconfonts')
-            call_command('create_social_icons')
-            call_command('download_workdir', interactive=self.interactive)
-            call_command('loaddata', 'products-media')
-            call_command('import_products')
+            #call_command('loaddata', 'skeleton')
+            #call_command('shop', 'check-pages', add_recommended=True)
+            #call_command('assign_iconfonts')
+            #call_command('create_social_icons')
+            #call_command('download_workdir', interactive=False)
+            #call_command('loaddata', 'products-media')
+            #call_command('import_products')
 {%- if cookiecutter.products_model == 'polymorphic' %}
             self.create_polymorphic_subcategories()
 {%- endif %}
 {%- if cookiecutter.use_sendcloud == 'y' %}
-            call_command('sendcloud_import')
+            #call_command('sendcloud_import')
 {%- endif %}
         else:
             self.stdout.write("Project {{ cookiecutter.app_name }} already initialized")
@@ -81,14 +81,13 @@ class Command(BaseCommand):
     def create_polymorphic_subcategories(self):
         from cms.models.pagemodel import Page
         from shop.management.commands.shop import Command as ShopCommand
-        from {{ cookiecutter.app_name }}.shop.models import Commodity, SmartCard, SmartPhoneModel
+        from {{ cookiecutter.app_name }}.shop.models import Commodity, SmartCard
 
         apphook = ShopCommand.get_installed_apphook('CatalogListCMSApp')
         catalog_pages = Page.objects.drafts().filter(application_urls=apphook.__class__.__name__)
         assert catalog_pages.count() == 1, "There should be only one catalog page"
         self.create_subcategory(apphook, catalog_pages.first(), "Earphones", Commodity)
         self.create_subcategory(apphook, catalog_pages.first(), "Smart Cards", SmartCard)
-        self.create_subcategory(apphook, catalog_pages.first(), "Smart Phones", SmartPhoneModel)
 
     def create_subcategory(self, apphook, parent_page, title, product_type):
         from cms.api import create_page

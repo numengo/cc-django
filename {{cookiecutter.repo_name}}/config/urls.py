@@ -8,13 +8,30 @@ from django.views import defaults as default_views
 from django.contrib.sitemaps.views import sitemap
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.http import HttpResponse
+
+def render_robots(request):
+    permission = 'noindex' in settings.ROBOTS_META_TAGS and 'Disallow' or 'Allow'
+    return HttpResponse('User-Agent: *\n%s: /\n' % permission, content_type='text/plain')
+
 
 {% if cookiecutter.use_django_cms == 'y' -%}
+sitemaps = {}
+
 from cms.sitemaps import CMSSitemap
+sitemaps['cmspages'] = CMSSitemap
+
+    {% if cookiecutter.use_django_shop == 'y' %}
+from {{ cookiecutter.app_name }}.shop.sitemap import ProductSitemap
+sitemaps['products'] = ProductSitemap
+    {%- endif %}
 
 urlpatterns = [
-    re_path(r'^sitemap\.xml$', sitemap,
-        {'sitemaps': {'cmspages': CMSSitemap}}),
+    re_path(r'^robots\.txt$', render_robots),
+    re_path(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    {% if cookiecutter.use_django_shop == 'y' -%}
+    re_path(r'^shop/', include('shop.urls', namespace='shop')),
+    {%- endif %}
 ]
 {% else %}
 urlpatterns = [
@@ -27,7 +44,6 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     # Django Admin, use {% raw %}{% url 'admin:index' %}{% endraw %}
     # User management
-    re_path(r"^users/", include("{{ cookiecutter.app_name }}.users.urls", namespace="users")),
     re_path(r"^accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     {% if cookiecutter.use_django_cms == 'y' -%}

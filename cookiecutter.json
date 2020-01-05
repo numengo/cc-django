@@ -4,7 +4,7 @@
   "github_username": "numengo",
   "project_name": "My Project",
   "domain_name": "{{ cookiecutter.project_name|lower|replace(' ','-')}}.com",
-  "domain": "http://www.{{cookiecutter.domain_name}}",
+  "domain": "http://{{cookiecutter.domain_name}}",
   "repo_name": "django-app-{{ cookiecutter.project_name|lower|replace(' ','-') }}",
   "app_name": "{{ cookiecutter.project_name.lower()|replace(' ', '_')|replace('-', '_') }}",
   "appName": "{{ cookiecutter.project_name|replace('-', '')|replace(' ', '') }}",
@@ -35,7 +35,7 @@
     "None"
   ],
   "custom_bootstrap_compilation": "n",
-  "use_compressor": "n",
+  "use_compressor": "y",
   "use_celery": "n",
   "use_mailhog": "n",
   "use_sentry": "n",

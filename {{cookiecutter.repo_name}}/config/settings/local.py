@@ -1,5 +1,6 @@
 from .base import *  # noqa
 from .base import env
+from django.utils.translation import ugettext_lazy as _
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -40,6 +41,30 @@ EMAIL_PORT = 1025
 EMAIL_BACKEND = env(
     "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
+{%- endif %}
+
+# DJANGO SHOP PAYMENTS
+# ------------------------------------------------------------------------------
+{% if cookiecutter.use_paypal == "y" -%}
+SHOP_PAYPAL = {
+    "API_ENDPOINT": "https://api.sandbox.paypal.com",
+    "MODE": "sandbox",
+    "CLIENT_ID": os.getenv("PAYPAL_CLIENT_ID"),
+    "CLIENT_SECRET": os.getenv("PAYPAL_CLIENT_SECRET"),
+    "PURCHASE_DESCRIPTION": _("Thanks for purchasing at {{ cookiecutter.project_name }}"),
+}
+{%- endif %}
+
+{% if cookiecutter.use_stripe == "y" -%}
+SHOP_STRIPE = {
+    "PUBKEY": os.getenv("STRIPE_PUBKEY", "pk_test_HlEp5oZyPonE21svenqowhXp"),
+    "APIKEY": os.getenv("STRIPE_APIKEY", "sk_test_xUdHLeFasmOUDvmke4DHGRDP"),
+    "PURCHASE_DESCRIPTION": _("Thanks for purchasing at {{ cookiecutter.project_name }}"),
+}
+
+    {%- if cookiecutter.debug == "y" %}
+SHOP_STRIPE_PREFILL = True
+    {%- endif %}
 {%- endif %}
 
 # django-debug-toolbar

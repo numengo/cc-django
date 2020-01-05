@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.conf.urls import url
+from django.urls import re_path
 
 from cms.apphook_pool import apphook_pool
 from cms.cms_menus import SoftRootCutter
@@ -18,15 +18,15 @@ class CatalogListApp(CatalogListCMSApp):
         from {{ cookiecutter.app_name }}.shop.serializers import AddSmartPhoneToCartSerializer, CatalogSearchSerializer
 
         return [
-            url(r'^$', CMSPageCatalogWrapper.as_view(
+            re_path(r'^$', CMSPageCatalogWrapper.as_view(
                 filter_class=ManufacturerFilterSet,
                 search_serializer_class=CatalogSearchSerializer,
             )),
-            url(r'^(?P<slug>[\w-]+)/?$', ProductRetrieveView.as_view(
+            re_path(r'^(?P<slug>[\w-]+)/?$', ProductRetrieveView.as_view(
                 use_modal_dialog=False,
             )),
-            url(r'^(?P<slug>[\w-]+)/add-to-cart', AddToCartView.as_view()),
-            url(r'^(?P<slug>[\w-]+)/add-smartphone-to-cart', AddToCartView.as_view(
+            re_path(r'^(?P<slug>[\w-]+)/add-to-cart', AddToCartView.as_view()),
+            re_path(r'^(?P<slug>[\w-]+)/add-smartphone-to-cart', AddToCartView.as_view(
                 serializer_class=AddSmartPhoneToCartSerializer,
             )),
         ]
@@ -35,16 +35,16 @@ class CatalogListApp(CatalogListCMSApp):
         from {{ cookiecutter.app_name }}.shop.serializers import ProductDetailSerializer
 
         return [
-            url(r'^$', ProductListView.as_view(
+            re_path(r'^$', ProductListView.as_view(
                 redirect_to_lonely_product=True,
             )),
-            url(r'^(?P<slug>[\w-]+)/?$', ProductRetrieveView.as_view(
+            re_path(r'^(?P<slug>[\w-]+)/?$', ProductRetrieveView.as_view(
                 serializer_class=ProductDetailSerializer,
     {%- if use_lookup_field %}
                 lookup_field='translations__slug'
     {%- endif %}
             )),
-            url(r'^(?P<slug>[\w-]+)/add-to-cart', AddToCartView.as_view({% if use_lookup_field %}lookup_field='translations__slug'{% endif %})),
+            re_path(r'^(?P<slug>[\w-]+)/add-to-cart', AddToCartView.as_view({% if use_lookup_field %}lookup_field='translations__slug'{% endif %})),
         ]
 {%- endif %}
 
@@ -57,7 +57,7 @@ class CatalogSearchApp(CatalogSearchCMSApp):
         from {{ cookiecutter.app_name }}.shop.serializers import ProductSearchSerializer
 
         return [
-            url(r'^', SearchView.as_view(
+            re_path(r'^', SearchView.as_view(
                 serializer_class=ProductSearchSerializer,
             )),
         ]

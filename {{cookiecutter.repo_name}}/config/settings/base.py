@@ -22,7 +22,16 @@ SHORT_DESCRIPTION = "{{ cookiecutter.short_description }}"
 ROOT_DIR = (
     environ.Path(__file__) - 3
 )  # ({{ cookiecutter.app_name }}/config/settings/base.py - 3 = {{ cookiecutter.app_name }}/)
+
+
 APPS_DIR = ROOT_DIR.path("{{ cookiecutter.app_name }}")
+
+WORK_DIR = os.environ.get("DJANGO_WORKDIR", ROOT_DIR.path("workdir"))
+
+# FIXTURES
+# ------------------------------------------------------------------------------
+# https://docs.djangoproject.com/en/dev/ref/settings/#fixture-dirs
+FIXTURE_DIRS = (str(WORK_DIR.path("fixtures")),)
 
 env = environ.Env()
 
@@ -61,7 +70,7 @@ LOCALE_PATHS = [ROOT_DIR.path("locale")]
 DATABASES = {"default": env.db("DATABASE_URL")}
 {%- else %}
 DATABASES = {
-    "default": env.db("DATABASE_URL", default="postgres://{% if cookiecutter.windows == "y" %}localhost{% endif %}/{{cookiecutter.app_name}}")
+    "default": env.db("DATABASE_URL", default="postgres://{% if cookiecutter.windows == 'y' %}localhost{% endif %}/{{cookiecutter.app_name}}")
 }
 {%- endif %}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
@@ -104,10 +113,10 @@ LOCAL_APPS = [
     #### PROTECTED REGION END ####
 
     #### PROTECTED REGION ID({{ cookiecutter.app_name }}.settings.local_apps.user) ENABLED START ####
-    "{{ cookiecutter.app_name }}.users.apps.UsersConfig",
-    {%- if cookiecutter.use_django_shop == "y" %}
+    #"{{ cookiecutter.app_name }}.users.apps.UsersConfig",
+{%- if cookiecutter.use_django_shop == "y" %}
     "{{ cookiecutter.app_name }}.shop.apps.ShopConfig",
-    {%- endif %}
+{%- endif %}
     # Your stuff: custom apps go here
     #### PROTECTED REGION END ####
 ]
@@ -127,7 +136,8 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
-AUTH_USER_MODEL = "users.User"
+#AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "auth.User"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
 LOGIN_REDIRECT_URL = "users:redirect"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
@@ -165,26 +175,35 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+{%- if cookiecutter.use_django_shop == "y" %}
+    "shop.middleware.CustomerMiddleware",
+{%- endif %}
 ]
 
 # STATIC
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
-STATIC_ROOT = str(ROOT_DIR("staticfiles"))
+STATIC_ROOT = str(WORK_DIR.path("staticfiles"))
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
-STATICFILES_DIRS = [str(APPS_DIR.path("static"))]
+STATICFILES_DIRS = [
+    ("static", str(APPS_DIR.path("static"))),
+    ("node_modules", str(WORK_DIR.path("node_modules"))),
+]
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+{%- if cookiecutter.use_django_shop == "y" %}
+    "sass_processor.finders.CssFinder",
+{%- endif %}
 ]
 
 # MEDIA
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
-MEDIA_ROOT = str(APPS_DIR("media"))
+MEDIA_ROOT = os.path.join(WORK_DIR, "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
 
@@ -196,14 +215,15 @@ TEMPLATES = [
         # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-TEMPLATES-BACKEND
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         # https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
+        "APP_DIRS": True,
         "DIRS": [str(APPS_DIR.path("templates"))],
         "OPTIONS": {
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
             # https://docs.djangoproject.com/en/dev/ref/templates/api/#loader-types
-            "loaders": [
-                "django.template.loaders.filesystem.Loader",
-                "django.template.loaders.app_directories.Loader"
-            ],
+            #"loaders": [
+            #    "django.template.loaders.filesystem.Loader",
+            #    "django.template.loaders.app_directories.Loader"
+            #],
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-context-processors
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -212,24 +232,45 @@ TEMPLATES = [
                 "django.template.context_processors.i18n",
                 "django.template.context_processors.media",
                 "django.template.context_processors.static",
-                {%- if cookiecutter.use_django_cms == "y" %}
+{%- if cookiecutter.use_django_cms == "y" %}
                 "sekizai.context_processors.sekizai",
                 "cms.context_processors.cms_settings",
-                {% endif -%}
+{%- endif %}
+{%- if cookiecutter.use_django_shop == "y" %}
+                "shop.context_processors.customer",
+                "shop.context_processors.shop_settings",
+{%- endif %}
+{%- if cookiecutter.use_stripe == "y" %}
+                "shop_stripe.context_processors.public_keys",
+{%- endif %}
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "{{ cookiecutter.app_name }}.utils.context_processors.settings_context",
             ],
         },
-    }
+    },
+{%- if cookiecutter.use_django_shop == "y" %}
+    {
+    "BACKEND": "post_office.template.backends.post_office.PostOfficeTemplates",
+    "APP_DIRS": True,
+    "DIRS": [],
+    "OPTIONS": {
+        "context_processors": [
+            "django.contrib.auth.context_processors.auth",
+            "django.template.context_processors.debug",
+            "django.template.context_processors.i18n",
+            "django.template.context_processors.media",
+            "django.template.context_processors.static",
+            "django.template.context_processors.tz",
+            "django.template.context_processors.request",
+            ]
+        }
+    },
+{% endif -%}
 ]
 # http://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
-# FIXTURES
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#fixture-dirs
-FIXTURE_DIRS = (str(APPS_DIR.path("fixtures")),)
 
 # SECURITY
 # ------------------------------------------------------------------------------
@@ -282,6 +323,18 @@ LOGGING = {
         }
     },
     "root": {"level": "INFO", "handlers": ["console"]},
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "post_office": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": True,
+        },
+    },
 }
 
 {% if cookiecutter.use_celery == "y" -%}
@@ -311,18 +364,49 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 {%- endif %}
 # django-allauth
+# https://django-allauth.readthedocs.io/en/latest/configuration.html
+#https://django-allauth.readthedocs.io/en/latest/advanced.html#custom-user-models
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_EMAIL_REQUIRED = True
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_ADAPTER = "{{cookiecutter.app_name}}.users.adapters.AccountAdapter"
+#ACCOUNT_ADAPTER = "{{cookiecutter.app_name}}.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = "{{cookiecutter.app_name}}.users.adapters.SocialAccountAdapter"
+#SOCIALACCOUNT_ADAPTER = "{{cookiecutter.app_name}}.users.adapters.SocialAccountAdapter"
+
+SOCIALACCOUNT_PROVIDERS = {
+    # https://django-allauth.readthedocs.io/en/latest/providers.html#facebook
+    "facebook": {
+        "METHOD": "oauth2",
+        "SDK_URL": "//connect.facebook.net/{locale}/sdk.js",
+        "SCOPE": ["email", "public_profile", "user_friends"],
+        "AUTH_PARAMS": {"auth_type": "reauthenticate"},
+        "INIT_PARAMS": {"cookie": True},
+        "FIELDS": [
+            "id",
+            "email",
+            "name",
+            "first_name",
+            "last_name",
+            "verified",
+            "locale",
+            "timezone",
+            "link",
+            "gender",
+            "updated_time",
+        ],
+        "EXCHANGE_TOKEN": True,
+        "LOCALE_FUNC": "path.to.callable",
+        "VERIFIED_EMAIL": False,
+        "VERSION": "v2.12",
+    }
+}
+
 
 {% if cookiecutter.use_compressor == "y" -%}
 # django-compressor
@@ -330,7 +414,6 @@ SOCIALACCOUNT_ADAPTER = "{{cookiecutter.app_name}}.users.adapters.SocialAccountA
 # https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
 INSTALLED_APPS += ["compressor"]
 STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
-
 {%- endif %}
 
 {%- if cookiecutter.use_django_rest_framework == "y" %}
@@ -340,6 +423,24 @@ INSTALLED_APPS += [
     "rest_framework",
     "drf_yasg",
 ]
+
+    {%- if cookiecutter.use_django_shop == "y" %}
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "shop.rest.money.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",  # can be disabled for production environments
+    ],
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
+    # "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    # "PAGE_SIZE": 16,
+}
+
+REST_AUTH_SERIALIZERS = {
+    "LOGIN_SERIALIZER": "shop.serializers.auth.LoginSerializer",
+}
+    {%- endif %}
 {%- endif %}
 
 {%- if cookiecutter.use_django_cms == "y" %}
@@ -363,6 +464,7 @@ INSTALLED_APPS = ["djangocms_admin_style"] + INSTALLED_APPS + [
     "djangocms_text_ckeditor",
     "filer",
     "easy_thumbnails",
+    "easy_thumbnails.optimize",
     "djangocms_column",
     "djangocms_file",
     "djangocms_link",
@@ -375,44 +477,49 @@ INSTALLED_APPS = ["djangocms_admin_style"] + INSTALLED_APPS + [
     "categories.editor",
 
     "django_select2",
-{%- if cookiecutter.use_django_shop == "y" %}
+    {%- if cookiecutter.use_django_shop == "y" %}
     "cmsplugin_cascade",
     "cmsplugin_cascade.clipboard",
     "cmsplugin_cascade.sharable",
     "cmsplugin_cascade.extra_fields",
     "cmsplugin_cascade.icon",
     "cmsplugin_cascade.segmentation",
+    "sass_processor",
+    "django_fsm",
+    "fsm_admin",
+    "djng",
 
     #"rest_framework.authtoken",
     #"rest_auth",
-    #"cms_bootstrap",
-    #"adminsortable2",
+    "cms_bootstrap",
+    "adminsortable2",
     #"email_auth",
     "django_filters",
     "polymorphic",
-{%- if cookiecutter.use_i18n == "y" %}
+        {%- if cookiecutter.use_i18n == "y" %}
     "parler",
-{%- endif %}
+        {%- endif %}
     "post_office",
     "haystack",
-{%- if cookiecutter.use_paypal == "y" %}
+        {%- if cookiecutter.use_paypal == "y" %}
     "shop_paypal",
-{%- endif %}
-{%- if cookiecutter.use_stripe == "y" %}
+        {%- endif %}
+        {%- if cookiecutter.use_stripe == "y" %}
     "shop_stripe",
-{%- endif %}
-{%- if cookiecutter.use_sendcloud == "y" %}
+        {%- endif %}
+        {%- if cookiecutter.use_sendcloud == "y" %}
     "shop_sendcloud",
-{%- endif %}
+        {%- endif %}
     "shop",
-{%- endif %}
+    {%- endif %}
 ]
 
 # Django CMS configurations
 CMS_TEMPLATES = (
-    ("fullwidth.html", "Fullwidth"),
-    ("sidebar_left.html", "Sidebar Left"),
-    ("sidebar_right.html", "Sidebar Right")
+    ("{{ cookiecutter.app_name }}/pages/default.html", _("Default Page")),
+    ("fullwidth.html", _("Fullwidth")),
+    ("sidebar_left.html", _("Sidebar Left")),
+    ("sidebar_right.html", _("Sidebar Right")),
 )
 
 LANGUAGES = [
@@ -441,6 +548,26 @@ CMS_LANGUAGES = {
     ],
 }
 
+# settings for storing files and images
+
+FILER_ADMIN_ICON_SIZES = ('16', '32', '48', '80', '128')
+
+FILER_ALLOW_REGULAR_USERS_TO_ADD_ROOT_FOLDERS = True
+
+FILER_DUMP_PAYLOAD = False
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880
+
+THUMBNAIL_HIGH_RESOLUTION = False
+
+THUMBNAIL_OPTIMIZE_COMMAND = {
+    'gif': '/usr/bin/optipng {filename}',
+    'jpeg': '/usr/bin/jpegoptim {filename}',
+    'png': '/usr/bin/optipng {filename}'
+}
+
+THUMBNAIL_PRESERVE_EXTENSIONS = True
+
 TEXT_SAVE_IMAGE_FUNCTION="cmsplugin_filer_image.integrations.ckeditor.create_image_plugin"
 THUMBNAIL_PROCESSORS = (
     "easy_thumbnails.processors.colorspace",
@@ -457,7 +584,49 @@ MIGRATION_MODULES = {
     "cmsplugin_filer_teaser": "cmsplugin_filer_teaser.migrations"
 }
 
-{%- if cookiecutter.use_django_shop == "y" %}
+
+CMS_PLACEHOLDER_CONF = {
+    {%- if cookiecutter.use_django_shop == "y" %}
+    "Breadcrumb": {
+        "plugins": ["BreadcrumbPlugin"],
+        "parent_classes": {"BreadcrumbPlugin": None},
+    },
+    "Commodity Details": {
+        "plugins": ["BootstrapContainerPlugin", "BootstrapJumbotronPlugin"],
+        "parent_classes": {
+            "BootstrapContainerPlugin": None,
+            "BootstrapJumbotronPlugin": None,
+        },
+    },
+    "Main Content": {
+        "plugins": ["BootstrapContainerPlugin", "BootstrapJumbotronPlugin"],
+        "parent_classes": {
+            "BootstrapContainerPlugin": None,
+            "BootstrapJumbotronPlugin": None,
+            "TextLinkPlugin": ["TextPlugin", "AcceptConditionPlugin"],
+        },
+    },
+    "Static Footer": {
+        "plugins": ["BootstrapContainerPlugin", "BootstrapJumbotronPlugin"],
+        "parent_classes": {
+            "BootstrapContainerPlugin": None,
+            "BootstrapJumbotronPlugin": None,
+        },
+    },
+    {% endif -%}
+}
+
+    {%- if cookiecutter.use_django_shop == "y" %}
+CMSPLUGIN_CASCADE_PLUGINS = [
+    "cmsplugin_cascade.bootstrap4",
+    "cmsplugin_cascade.segmentation",
+    "cmsplugin_cascade.generic",
+    "cmsplugin_cascade.icon",
+    "cmsplugin_cascade.leaflet",
+    "cmsplugin_cascade.link",
+    "shop.cascade",
+]
+
 CMSPLUGIN_CASCADE = {
     "link_plugin_classes": [
         "shop.cascade.plugin_base.CatalogLinkPluginBase",
@@ -575,13 +744,13 @@ HAYSTACK_CONNECTIONS = {
         "URL": "http://{}:9200/".format(ELASTICSEARCH_HOST),
         "INDEX_NAME": "{{ cookiecutter.app_name }}-en",
     },
-{%- if cookiecutter.use_i18n == "y" %}
+        {%- if cookiecutter.use_i18n == "y" %}
     "de": {
         "ENGINE": "haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine",
         "URL": "http://{}:9200/".format(ELASTICSEARCH_HOST),
         "INDEX_NAME": "{{ cookiecutter.app_name }}-de",
     }
-{% endif -%}
+        {% endif -%}
 }
 
 HAYSTACK_ROUTERS = [
@@ -593,82 +762,114 @@ HAYSTACK_ROUTERS = [
 
 SHOP_VALUE_ADDED_TAX = Decimal(19)
 SHOP_DEFAULT_CURRENCY = "EUR"
-SHOP_EDITCART_NG_MODEL_OPTIONS = '{updateOn: "default blur", debounce: {"default": 2500, "blur": 0}}'
+SHOP_EDITCART_NG_MODEL_OPTIONS = "{updateOn: 'default blur', debounce: {'default': 2500, 'blur': 0}}"
 
 SHOP_CART_MODIFIERS = [
     "{{ cookiecutter.app_name }}.shop.modifiers.PrimaryCartModifier",
     "shop.modifiers.taxes.CartExcludedTaxModifier",
-{%- if cookiecutter.products_model != "commodity" %}
+        {%- if cookiecutter.products_model != "commodity" %}
     "{{ cookiecutter.app_name }}.shop.modifiers.PostalShippingModifier",
-{%- endif %}
-{%- if cookiecutter.use_paypal == "y" %}
+        {%- endif %}
+        {%- if cookiecutter.use_paypal == "y" %}
     "shop_paypal.modifiers.PaymentModifier",
-{%- endif %}
-{%- if cookiecutter.use_stripe == "y" %}
+        {%- endif %}
+        {%- if cookiecutter.use_stripe == "y" %}
     "{{ cookiecutter.app_name }}.shop.modifiers.StripePaymentModifier",
-{%- endif %}
+        {%- endif %}
     "shop.payment.modifiers.PayInAdvanceModifier",
-{%- if cookiecutter.use_sendcloud == "y" %}
+        {%- if cookiecutter.use_sendcloud == "y" %}
     "shop_sendcloud.modifiers.SendcloudShippingModifiers",
     "shop.modifiers.defaults.WeightedCartModifier",
-{%- endif %}
+        {%- endif %}
     "shop.shipping.modifiers.SelfCollectionModifier",
 ]
 
 SHOP_ORDER_WORKFLOWS = [
     "shop.payment.workflows.ManualPaymentWorkflowMixin",
     "shop.payment.workflows.CancelOrderWorkflowMixin",
-{%- if cookiecutter.delivery_handling == "partial" %}
+        {%- if cookiecutter.delivery_handling == "partial" %}
     "shop.shipping.workflows.PartialDeliveryWorkflowMixin",
-{%- elif cookiecutter.delivery_handling == "common" %}
+        {%- elif cookiecutter.delivery_handling == "common" %}
     "shop.shipping.workflows.CommissionGoodsWorkflowMixin",
-{%- else %}
+        {%- else %}
     "shop.shipping.workflows.SimpleShippingWorkflowMixin",
-{%- endif %}
-{%- if cookiecutter.use_paypal == "y" %}
+        {%- endif %}
+        {%- if cookiecutter.use_paypal == "y" %}
     "shop_paypal.payment.OrderWorkflowMixin",
-{%- endif %}
-{%- if cookiecutter.use_stripe == "y" %}
+        {%- endif %}
+        {%- if cookiecutter.use_stripe == "y" %}
     "shop_stripe.workflows.OrderWorkflowMixin",
-{%- endif %}
+        {%- endif %}
 ]
 
-{% if cookiecutter.use_paypal == "y" -%}
-SHOP_PAYPAL = {
-    "API_ENDPOINT": "https://api.sandbox.paypal.com",
-    "MODE": "sandbox",
-    "CLIENT_ID": os.getenv("PAYPAL_CLIENT_ID"),
-    "CLIENT_SECRET": os.getenv("PAYPAL_CLIENT_SECRET"),
-    "PURCHASE_DESCRIPTION": _("Thanks for purchasing at {{ cookiecutter.project_name }}"),
-}
-{%- endif %}
-
-{% if cookiecutter.use_stripe == "y" -%}
-SHOP_STRIPE = {
-    "PUBKEY": os.getenv("STRIPE_PUBKEY", "pk_test_HlEp5oZyPonE21svenqowhXp"),
-    "APIKEY": os.getenv("STRIPE_APIKEY", "sk_test_xUdHLeFasmOUDvmke4DHGRDP"),
-    "PURCHASE_DESCRIPTION": _("Thanks for purchasing at {{ cookiecutter.project_name }}"),
-}
-
-    {%- if cookiecutter.debug == "y" %}
-SHOP_STRIPE_PREFILL = True
-    {%- endif %}
-{%- endif %}
-
-{% if cookiecutter.use_sendcloud == "y" -%}
+        {% if cookiecutter.use_sendcloud == "y" -%}
 SHOP_SENDCLOUD = {
     "API_KEY": os.getenv("SENDCLOUD_PUBLIC_KEY"),
     "API_SECRET": os.getenv("SENDCLOUD_SECRET_KEY"),
 }
-{%- endif %}
+        {%- endif %}
 
 SHOP_CASCADE_FORMS = {
     "CustomerForm": "{{ cookiecutter.app_name }}.shop.forms.CustomerForm",
 }
 
-{%- endif %}
+############################################
+# settings for caching and storing session data
+REDIS_HOST = os.getenv('REDIS_HOST')
+if REDIS_HOST:
+    SESSION_ENGINE = 'redis_sessions.session'
 
-{%- endif %}
+    SESSION_REDIS = {
+        'host': REDIS_HOST,
+        'port': 6379,
+        'db': 0,
+        'prefix': 'session-',
+        'socket_timeout': 1
+    }
+
+    CACHES['default'] = {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis://{}:6379/1'.format(REDIS_HOST),
+        'OPTIONS': {
+            'PICKLE_VERSION': 2 if six.PY2 else -1,
+        }
+    }
+{% if cookiecutter.use_compressor == 'y' %}
+    COMPRESS_CACHE_BACKEND = 'compressor'
+    CACHES[COMPRESS_CACHE_BACKEND] = {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis://{}:6379/2'.format(REDIS_HOST),
+    }
+{% endif %}
+    CACHE_MIDDLEWARE_ALIAS = 'default'
+    CACHE_MIDDLEWARE_SECONDS = 3600
+else:
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+SESSION_SAVE_EVERY_REQUEST = True
+
+############################################
+# settings for third party Django apps
+POST_OFFICE = {
+    "TEMPLATE_ENGINE": "post_office",
+}
+
+NODE_MODULES_URL = STATIC_URL + "node_modules/"
+
+SASS_PROCESSOR_INCLUDE_DIRS = [
+    str(WORK_DIR.path("node_modules")),
+]
+
+COERCE_DECIMAL_TO_STRING = True
+
+FSM_ADMIN_FORCE_PERMIT = True
+
+ROBOTS_META_TAGS = ("noindex", "nofollow")
+
+SERIALIZATION_MODULES = {"json": str("shop.money.serializers")}
+    {%- endif %}{# cookiecutter.use_django_shop == "y" #}
+
+{%- endif %} {# cookiecutter.use_django_cms == "y" #}
 
 #### PROTECTED REGION ID({{ cookiecutter.app_name }}.settings.user) ENABLED START ####
 # Your stuff...

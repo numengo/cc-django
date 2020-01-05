@@ -8,12 +8,12 @@ from __future__ import unicode_literals
 
 {% if cookiecutter.use_i18n == 'y' -%}
 
-from parler_rest.serializers import TranslatedFieldsField, TranslatedField, TranslatableModelSerializerMixin
+from parler_rest.serializers import TranslatedFieldsField, TranslatedField, TranslatableModelSerializer
 
-    {%- if cookiecutter.products_model == 'smartcard' %}
+    {%- if cookiecutter.products_model == 'smartcard__' %}
 
+class TranslatableModelSerializerMixin(TranslatableModelSerializer):
 
-class TranslatableModelSerializerMixin(TranslatableModelSerializerMixin):
     def to_internal_value(self, data):
         data = self._swap_translated_data(data)
         return super(TranslatableModelSerializerMixin, self).to_internal_value(data)
@@ -46,7 +46,7 @@ class TranslatableModelSerializerMixin(object):
     """
     def to_internal_value(self, data):
         data = self._unify_translated_data(data)
-        result = super(TranslatableModelSerializerMixin, self).to_internal_value(data)
+        result = super(TranslatableModelSerializer, self).to_internal_value(data)
         return result
 
     def _unify_translated_data(self, data):

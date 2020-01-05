@@ -8,19 +8,19 @@
     }
   },
   {
-    "model": "users.user",
+    "model": "auth.user",
     "pk": 1,
     "fields": {
-      "password": "argon2$argon2i$v=19$m=512,t=2,p=2$cjdLYVZZT0c5NFJT$O6EJ8z2rTX4cEMdpPz9BSA",
-      "last_login": "2019-10-27T10:59:17.654Z",
+      "password": "argon2$argon2i$v=19$m=512,t=2,p=2$c2M2T2JQRVJoOUwx$Jiru5Pl5gWAKuu6UVl0o5A",
+      "last_login": null,
       "is_superuser": true,
       "username": "admin",
       "first_name": "",
       "last_name": "",
+      "email": "roman@numengo.com",
       "is_staff": true,
       "is_active": true,
-      "date_joined": "2019-10-27T10:52:34.320Z",
-      "email": "admin@mywayof.life",
+      "date_joined": "2019-12-27T07:09:31.735Z",
       "groups": [],
       "user_permissions": []
     }

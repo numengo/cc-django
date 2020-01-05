@@ -133,7 +133,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middcookiecutter-django-shop/{{cookiecutter.app_name}}/{{cookiecutter.app_name}}/settings.py:136leware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'shop.middleware.CustomerMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -412,7 +412,7 @@ SERIALIZATION_MODULES = {'json': str('shop.money.serializers')}
 ############################################
 # settings for django-restframework and plugins
 
-REST_FRAMEWORK = {
+'REST_FRAMEWORK' = {
     'DEFAULT_RENDERER_CLASSES': [
         'shop.rest.money.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',  # can be disabled for production environments

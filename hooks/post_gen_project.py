@@ -92,10 +92,10 @@ def remove_packagejson_file():
 def remove_celery_files():
     file_names = [
         os.path.join("config", "celery_app.py"),
-        os.path.join("{{ cookiecutter.app_name }}", "users", "tasks.py"),
-        os.path.join(
-            "{{ cookiecutter.app_name }}", "users", "tests", "test_tasks.py"
-        ),
+        #os.path.join("{{ cookiecutter.app_name }}", "users", "tasks.py"),
+        #os.path.join(
+        #    "{{ cookiecutter.app_name }}", "users", "tests", "test_tasks.py"
+        #),
     ]
     for file_name in file_names:
         os.remove(file_name)
