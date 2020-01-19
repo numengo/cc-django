@@ -7,7 +7,7 @@ try:
 except ImportError:
     from io import BytesIO as StringIO
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
 from django.utils.translation import ugettext_lazy as _
 try:
@@ -58,17 +58,18 @@ class Command(BaseCommand):
             self.stdout.write("Initializing project {{ cookiecutter.app_name }}")
             #call_command('makemigrations', '{{ cookiecutter.app_name }}')
             #call_command('migrate')
-            os.remove(initialize_file)
+            #os.remove(initialize_file)
             #call_command('loaddata', 'skeleton')
             #call_command('shop', 'check-pages', add_recommended=True)
             #call_command('assign_iconfonts')
             #call_command('create_social_icons')
             #call_command('download_workdir', interactive=False)
             #call_command('loaddata', 'products-media')
-            #call_command('import_products')
 {%- if cookiecutter.products_model == 'polymorphic' %}
             self.create_polymorphic_subcategories()
 {%- endif %}
+            #call_command('import_products')
+            #call_command('initialize_inventories')
 {%- if cookiecutter.use_sendcloud == 'y' %}
             #call_command('sendcloud_import')
 {%- endif %}
@@ -81,13 +82,14 @@ class Command(BaseCommand):
     def create_polymorphic_subcategories(self):
         from cms.models.pagemodel import Page
         from shop.management.commands.shop import Command as ShopCommand
-        from {{ cookiecutter.app_name }}.shop.models import Commodity, SmartCard
+        from {{ cookiecutter.app_name }}.shop.models import Commodity, SmartCard, SmartPhoneModel
 
         apphook = ShopCommand.get_installed_apphook('CatalogListCMSApp')
         catalog_pages = Page.objects.drafts().filter(application_urls=apphook.__class__.__name__)
         assert catalog_pages.count() == 1, "There should be only one catalog page"
         self.create_subcategory(apphook, catalog_pages.first(), "Earphones", Commodity)
         self.create_subcategory(apphook, catalog_pages.first(), "Smart Cards", SmartCard)
+        self.create_subcategory(apphook, catalog_pages.first(), "Smart Phones", SmartPhoneModel)
 
     def create_subcategory(self, apphook, parent_page, title, product_type):
         from cms.api import create_page

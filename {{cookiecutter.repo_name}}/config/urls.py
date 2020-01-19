@@ -1,6 +1,7 @@
 from django.conf import settings
-from django.urls import include, path, re_path
+#from django.urls import include, path, re_path
 from django.conf.urls.static import static
+from django.conf.urls import url, include
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.views.generic import TemplateView
@@ -27,39 +28,57 @@ sitemaps['products'] = ProductSitemap
     {%- endif %}
 
 urlpatterns = [
-    re_path(r'^robots\.txt$', render_robots),
-    re_path(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    url(r'^robots\.txt$', render_robots),
+    url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     {% if cookiecutter.use_django_shop == 'y' -%}
-    re_path(r'^shop/', include('shop.urls', namespace='shop')),
+    url(r'^shop/', include('shop.urls', namespace='shop')),
     {%- endif %}
 ]
 {% else %}
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
-    path(settings.ADMIN_URL, admin.site.urls),
+    url("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    url("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
+    url(settings.ADMIN_URL, admin.site.urls),
 ]
 {%- endif %}
 
-urlpatterns += i18n_patterns(
+#urlpatterns += i18n_patterns(
+i18n_urls = (
     # Django Admin, use {% raw %}{% url 'admin:index' %}{% endraw %}
     # User management
-    re_path(r"^accounts/", include("allauth.urls")),
+    url(r'^accounts/', include('allauth.urls')),
     # Your stuff: custom urls includes go here
     {% if cookiecutter.use_django_cms == 'y' -%}
-    re_path(r'^admin/', admin.site.urls),   # NOQA
+    url(r'^admin/', admin.site.urls, name='admin'),  # NOQA
     # CMS - should be last
-    re_path(r'^', include('cms.urls')),
+    url(r'^', include('cms.urls'), name='home'),
     {%- endif %}
 )
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#    # Django Admin, use {% raw %}{% url 'admin:index' %}{% endraw %}
+#    # User management
+#    re_path(r'^accounts/', include('allauth.urls')),
+#    # Your stuff: custom urls includes go here
+#    {% if cookiecutter.use_django_cms == 'y' -%}
+#    re_path(r'^admin/', admin.site.urls, name='admin'),   # NOQA
+#    # CMS - should be last
+#    re_path(r'^', include('cms.urls'), name='home'),
+#    {%- endif %}
+#)
+#urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.USE_I18N:
+    urlpatterns.extend(i18n_patterns(*i18n_urls))
+else:
+    urlpatterns.extend(i18n_urls)
+urlpatterns.extend(static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
+
 
 if settings.DEBUG:
     {% if cookiecutter.use_django_cms == 'y' -%}
     # This is only needed when using runserver.
     urlpatterns = [
-        re_path(r'^media/(?P<path>.*)$', serve,
+        url(r'^media/(?P<path>.*)$', serve,
             {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}, name="media"),
         ] + staticfiles_urlpatterns() + urlpatterns
 
@@ -68,24 +87,24 @@ if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
     # these url in browser to see how these error pages look like.
     urlpatterns += [
-        path(
+        url(
             "400/",
             default_views.bad_request,
             kwargs={"exception": Exception("Bad Request!")},
         ),
-        path(
+        url(
             "403/",
             default_views.permission_denied,
             kwargs={"exception": Exception("Permission Denied")},
         ),
-        path(
+        url(
             "404/",
             default_views.page_not_found,
             kwargs={"exception": Exception("Page not Found")},
         ),
-        path("500/", default_views.server_error),
+        url("500/", default_views.server_error),
     ]
     if "debug_toolbar" in settings.INSTALLED_APPS:
         import debug_toolbar
 
-        urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
+        urlpatterns = [url("__debug__/", include(debug_toolbar.urls))] + urlpatterns

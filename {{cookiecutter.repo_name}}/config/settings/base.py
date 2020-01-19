@@ -51,7 +51,6 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 TIME_ZONE = "{{ cookiecutter.timezone }}"
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
 LANGUAGE_CODE = "{{ cookiecutter.languages.strip().split(",") | first }}"
-
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-i18n
@@ -189,7 +188,7 @@ STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = [
     ("static", str(APPS_DIR.path("static"))),
-    ("node_modules", str(WORK_DIR.path("node_modules"))),
+    ("node_modules", str(ROOT_DIR.path("node_modules"))),
 ]
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = [
@@ -414,7 +413,7 @@ SOCIALACCOUNT_PROVIDERS = {
 # https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
 INSTALLED_APPS += ["compressor"]
 STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
-{%- endif %}
+{% endif %}
 
 {%- if cookiecutter.use_django_rest_framework == "y" %}
 # DJANGO-REST
@@ -477,7 +476,7 @@ INSTALLED_APPS = ["djangocms_admin_style"] + INSTALLED_APPS + [
     "categories.editor",
 
     "django_select2",
-    {%- if cookiecutter.use_django_shop == "y" %}
+{%- if cookiecutter.use_django_shop == "y" %}
     "cmsplugin_cascade",
     "cmsplugin_cascade.clipboard",
     "cmsplugin_cascade.sharable",
@@ -522,31 +521,40 @@ CMS_TEMPLATES = (
     ("sidebar_right.html", _("Sidebar Right")),
 )
 
-LANGUAGES = [
-    {% for language in cookiecutter.languages.strip().split(",") -%}
-    ("{{ language|trim }}", "{{ language|trim }}"),
-    {% endfor %}
+{%- with languages = cookiecutter.languages.replace(' ', '').split(',') %}
+# Internationalization
+# https://docs.djangoproject.com/en/stable/topics/i18n/
+LANGUAGES = [{% for language in languages %}
+    ('{{ language }}', "{{ language }}"),{% endfor %}
 ]
 
-CMS_LANGUAGES = {
-    ## Customize this
-    "default": {
-        "public": True,
-        "hide_untranslated": False,
-        "redirect_on_fallback": True,
-    },
-    1: [{% for language in cookiecutter.languages.strip().split(",") %}
-        {
-            "public": True,
-            "code": "{{ language|trim }}",
-            "hide_untranslated": False,
-            "name": gettext("{{ language|trim }}"),
-            "redirect_on_fallback": True,
-        },
-        {% endfor %}
+PARLER_DEFAULT_LANGUAGE = LANGUAGE_CODE
 
+PARLER_LANGUAGES = {
+    1: [{% for language in languages %}
+        {'code': '{{ language }}'},{% endfor %}
     ],
+    'default': {
+        'fallbacks': [{% for language in languages %}'{{ language }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+    },
 }
+
+CMS_LANGUAGES = {
+    'default': {
+        'fallbacks': [{% for language in languages %}'{{ language }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+        'redirect_on_fallback': True,
+        'public': True,
+        'hide_untranslated': False,
+    },
+    1: [{% for language in languages %}{
+        'public': True,
+        'code': '{{ language }}',
+        'hide_untranslated': False,
+        'name': '{{ language.title() }}',
+        'redirect_on_fallback': True,
+    }{% if not loop.last %}, {% endif %}{% endfor %}]
+}
+{%- endwith %}
 
 # settings for storing files and images
 
@@ -635,7 +643,7 @@ CMSPLUGIN_CASCADE = {
     ],
     "alien_plugins": ["TextPlugin", "TextLinkPlugin", "AcceptConditionPlugin"],
     "bootstrap4": {
-        "template_basedir": "angular-ui",
+        "template_basedir": "angular-ui/",
     },
     "plugins_with_extra_render_templates": {
         "CustomSnippetPlugin": [
@@ -661,7 +669,7 @@ CMSPLUGIN_CASCADE = {
         "SimpleIconPlugin": PluginExtraFieldsConfig(),
     },
     "plugins_with_extra_mixins": {
-        "BootstrapContainerPlugin": BootstrapUtilities(BootstrapUtilities.background_and_color),
+        "BootstrapContainerPlugin": BootstrapUtilities(),
         "BootstrapRowPlugin": BootstrapUtilities(BootstrapUtilities.paddings),
         "BootstrapYoutubePlugin": BootstrapUtilities(BootstrapUtilities.margins),
         "BootstrapButtonPlugin": BootstrapUtilities(BootstrapUtilities.floats),
@@ -673,7 +681,8 @@ CMSPLUGIN_CASCADE = {
     },
     "bookmark_prefix": "/",
     "segmentation_mixins": [
-        ("shop.cascade.segmentation.EmulateCustomerModelMixin", "shop.cascade.segmentation.EmulateCustomerAdminMixin"),
+        ("shop.cascade.segmentation.EmulateCustomerModelMixin",
+         "shop.cascade.segmentation.EmulateCustomerAdminMixin"),
     ],
     "allow_plugin_hiding": True,
 }
@@ -681,19 +690,17 @@ CMSPLUGIN_CASCADE = {
 CKEDITOR_SETTINGS = {
     "language": "{% raw %}{{ language }}{% endraw %}",
     "skin": "moono-lisa",
-    "toolbar": "CMS",
-    "toolbar_HTMLField": [
-        ["Undo", "Redo"],
-        ["cmsplugins", "-", "ShowBlocks"],
-        ["Format", "Styles"],
-        ["TextColor", "BGColor", "-", "PasteText", "PasteFromWord"],
-        ["Maximize", ""],
-        "/",
-        ["Bold", "Italic", "Underline", "-", "Subscript", "Superscript", "-", "RemoveFormat"],
-        ["JustifyLeft", "JustifyCenter", "JustifyRight"],
-        ["HorizontalRule"],
-        ["NumberedList", "BulletedList", "-", "Outdent", "Indent", "-", "Table"],
-        ["Source"]
+    'toolbar_CMS': [
+        ['Undo', 'Redo'],
+        ['cmsplugins', '-', 'ShowBlocks'],
+        ['Format'],
+        ['TextColor', 'BGColor', '-', 'PasteText', 'PasteFromWord'],
+        '/',
+        ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+        ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+        ['HorizontalRule'],
+        ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+        ['Source']
     ],
     "stylesSet": format_lazy("default:{}", reverse_lazy("admin:cascade_texteditor_config")),
 }
@@ -731,7 +738,7 @@ CKEDITOR_SETTINGS_DESCRIPTION = {
 
 SELECT2_CSS = "node_modules/select2/dist/css/select2.min.css"
 SELECT2_JS = "node_modules/select2/dist/js/select2.min.js"
-
+SELECT2_I18N_PATH = "node_modules/select2/dist/js/i18n"
 
 #############################################
 # settings for full index text search (Haystack)
@@ -765,7 +772,11 @@ SHOP_DEFAULT_CURRENCY = "EUR"
 SHOP_EDITCART_NG_MODEL_OPTIONS = "{updateOn: 'default blur', debounce: {'default': 2500, 'blur': 0}}"
 
 SHOP_CART_MODIFIERS = [
+        {%- if cookiecutter.products_model == "polymorphic" %}
     "{{ cookiecutter.app_name }}.shop.modifiers.PrimaryCartModifier",
+        {%- else %}
+    "shop.modifiers.defaults.DefaultCartModifier",
+        {%- endif %}
     "shop.modifiers.taxes.CartExcludedTaxModifier",
         {%- if cookiecutter.products_model != "commodity" %}
     "{{ cookiecutter.app_name }}.shop.modifiers.PostalShippingModifier",
@@ -857,7 +868,7 @@ POST_OFFICE = {
 NODE_MODULES_URL = STATIC_URL + "node_modules/"
 
 SASS_PROCESSOR_INCLUDE_DIRS = [
-    str(WORK_DIR.path("node_modules")),
+    str(ROOT_DIR.path("node_modules")),
 ]
 
 COERCE_DECIMAL_TO_STRING = True

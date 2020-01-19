@@ -13,11 +13,10 @@
   "keywords": "keywords",
   "version": "0.1.0",
   "license": ["GNU General Public License v3", "NUMENGO", "BSD 2-Clause License", "BSD 3-Clause License", "MIT license", "ISC license", "Apache Software License 2.0"],
-  "languages": "en",
+  "languages": "en, de, fr",
   "timezone": "UTC",
   "windows": "n",
-  "use_pycharm": "y",
-  "use_docker": "y",
+  "use_docker": "n",
   "postgresql_version": [
     "11.3",
     "10.8",
@@ -62,6 +61,11 @@
     "polymorphic",
     "smartcard",
     "commodity"
+  ],
+  "stock_management": [
+    "simple",
+    "inventory",
+    "n"
   ],
   "requirements_install": "",
   "setup_requirements": "",

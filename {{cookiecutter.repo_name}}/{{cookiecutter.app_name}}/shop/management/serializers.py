@@ -11,14 +11,14 @@ from filer.models.imagemodels import Image
 from rest_framework import serializers
 from shop.serializers.catalog import CMSPagesField, ImagesField, ValueRelatedField
 {%- if cookiecutter.products_model == 'polymorphic' %}
-from {{ cookiecutter.app_name }}.shop.models import (Commodity, SmartCard, Manufacturer, ProductPage, ProductImage)
-from {{ cookiecutter.app_name }}.shop.models import (SmartPhoneModel, SmartPhoneVariant, OperatingSystem, )
+from {{ cookiecutter.app_name }}.shop.models import (Commodity, SmartCard, SmartPhoneModel, SmartPhoneVariant,
+    Manufacturer, OperatingSystem, ProductPage, ProductImage)
 {%- elif cookiecutter.products_model == 'smartcard' %}
 from {{ cookiecutter.app_name }}.shop.models import SmartCard, Manufacturer, ProductPage, ProductImage
 {%- elif cookiecutter.products_model == 'commodity' %}
 from {{ cookiecutter.app_name }}.shop.models import Commodity, ProductPage, ProductImage
 {%- endif %}
-from .translation import TranslatedFieldsField, TranslatedField, TranslatableModelSerializer
+from .translation import TranslatedFieldsField, TranslatedField, TranslatableModelSerializerMixin
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -50,7 +50,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 {% if cookiecutter.products_model != 'smartcard' -%}
 
-class CommoditySerializer(TranslatableModelSerializer, ProductSerializer):
+class CommoditySerializer(TranslatableModelSerializerMixin, ProductSerializer):
     {%- if cookiecutter.products_model == 'commodity' %}
     product_name = TranslatedField()
     slug = TranslatedField()
@@ -64,7 +64,7 @@ class CommoditySerializer(TranslatableModelSerializer, ProductSerializer):
 {%- endif %}{% if cookiecutter.products_model != 'commodity' %}
 
 
-class SmartCardSerializer(TranslatableModelSerializer, ProductSerializer):
+class SmartCardSerializer(TranslatableModelSerializerMixin, ProductSerializer):
     {%- if cookiecutter.use_i18n == 'y' and cookiecutter.products_model == 'smartcard' %}
     description = TranslatedField()
     {%- else %}
@@ -82,10 +82,10 @@ class SmartCardSerializer(TranslatableModelSerializer, ProductSerializer):
 class SmartphoneVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = SmartPhoneVariant
-        fields = ['product_code', 'unit_price', 'storage']
+        fields = ['product_code', 'unit_price', 'storage'{% if cookiecutter.stock_management == 'simple' %}, 'quantity'{% endif %}]
 
 
-class SmartPhoneModelSerializer(TranslatableModelSerializer, ProductSerializer):
+class SmartPhoneModelSerializer(TranslatableModelSerializerMixin, ProductSerializer):
     multilingual = TranslatedFieldsField()
     operating_system = ValueRelatedField(model=OperatingSystem)
     variants = SmartphoneVariantSerializer(many=True)

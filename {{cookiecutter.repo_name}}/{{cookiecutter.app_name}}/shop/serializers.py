@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 from django.utils.safestring import mark_safe
 from rest_framework import serializers
 from shop.search.serializers import ProductSearchSerializer as BaseProductSearchSerializer
+{%- if cookiecutter.products_model != 'polymorphic' %}
 from shop.serializers.bases import ProductSerializer
-{%- if cookiecutter.products_model == 'polymorphic' %}
-from rest_framework.fields import empty
+{%- else %}
 from shop.models.cart import CartModel
 from shop.serializers.defaults.catalog import AddToCartSerializer
 {%- endif %}
@@ -71,27 +71,22 @@ class AddSmartPhoneToCartSerializer(AddToCartSerializer):
     """
     def get_instance(self, context, data, extra_args):
         product = context['product']
+        request = context['request']
         try:
-            cart = CartModel.objects.get_from_request(context['request'])
+            cart = CartModel.objects.get_from_request(request)
         except CartModel.DoesNotExist:
             cart = None
-        if data is empty:
-            product_code = None
-            extra = {}
-        else:
-            product_code = data.get('product_code')
-            extra = data.get('extra', {})
         try:
-            variant = product.get_product_variant(product_code=product_code)
-        except product.DoesNotExist:
+            variant = product.get_product_variant(product_code=data['product_code'])
+        except (TypeError, KeyError, product.DoesNotExist):
             variant = product.variants.first()
-        extra.update(storage=variant.storage)
         instance = {
             'product': product.id,
             'product_code': variant.product_code,
             'unit_price': variant.unit_price,
             'is_in_cart': bool(product.is_in_cart(cart, product_code=variant.product_code)),
-            'extra': extra,
+            'extra': {'storage': variant.storage},
+            'availability': variant.get_availability(request),
         }
         return instance
 {% endif %}

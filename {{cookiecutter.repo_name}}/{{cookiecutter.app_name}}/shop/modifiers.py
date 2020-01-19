@@ -16,16 +16,8 @@ from {{ cookiecutter.app_name }}.shop.models import Commodity
 {%- endif %}
 
 
+{%- if cookiecutter.products_model == 'polymorphic' %}
 class PrimaryCartModifier(DefaultCartModifier):
-{%- if cookiecutter.products_model == 'commodity' %}
-    """
-    Extended default cart modifier which restricts the quantity of a unique commodity to one
-    """
-    def pre_process_cart_item(self, cart, item, request):
-        if isinstance(item.product, Commodity):
-            item.quantity = 1
-
-{%- elif cookiecutter.products_model == 'polymorphic' %}
     """
     Extended default cart modifier which handles the price for product variations
     """
@@ -35,8 +27,6 @@ class PrimaryCartModifier(DefaultCartModifier):
         cart_item.line_total = cart_item.unit_price * cart_item.quantity
         # grandparent super
         return super(DefaultCartModifier, self).process_cart_item(cart_item, request)
-{%- else %}
-    pass
 {%- endif %}
 
 
@@ -47,7 +37,7 @@ class PostalShippingModifier(ShippingModifier):
         return (self.identifier, _("Postal shipping"))
 
     def add_extra_cart_row(self, cart, request):
-        if not self.is_active(cart) and len(cart_modifiers_pool.get_shipping_modifiers()) > 1:
+        if not self.is_active(cart.extra.get('shipping_modifier')) and len(cart_modifiers_pool.get_shipping_modifiers()) > 1:
             return
         # add a shipping flat fee
         amount = Money('5')

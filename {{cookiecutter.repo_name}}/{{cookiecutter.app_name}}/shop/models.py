@@ -13,6 +13,7 @@ from decimal import Decimal
 from django.core.exceptions import ObjectDoesNotExist
         {%- endif %}
     {%- endif %}
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
@@ -20,7 +21,7 @@ from djangocms_text_ckeditor.fields import HTMLField
     {%- if cookiecutter.use_i18n == 'y' %}
 from polymorphic.query import PolymorphicQuerySet
 from parler.managers import TranslatableManager, TranslatableQuerySet
-from parler.models import TranslatableModel, TranslatedFieldsModel{% if cookiecutter.products_model == 'polymorphic' %}, TranslatedFields{% endif %}
+from parler.models import TranslatableModelMixin, TranslatedFieldsModel{% if cookiecutter.products_model == 'polymorphic' %}, TranslatedFields{% endif %}
 from parler.fields import TranslatedField
     {%- endif %}
     {%- if cookiecutter.products_model == 'polymorphic' %}
@@ -28,7 +29,10 @@ from cms.models.fields import PlaceholderField
 from shop.money import Money, MoneyMaker
     {%- endif %}
 from shop.money.fields import MoneyField
-from shop.models.product import BaseProduct, BaseProductManager, CMSPageReferenceMixin
+from shop.models.product import BaseProduct, BaseProductManager,{% if cookiecutter.stock_management == 'simple' %} AvailableProductMixin,{% endif %} CMSPageReferenceMixin
+    {%- if cookiecutter.stock_management == 'inventory' %}
+from shop.models.inventory import BaseInventory, AvailableProductMixin
+    {%- endif %}
 {% endif -%}
 from shop.models.defaults.cart import Cart
 from shop.models.defaults.cart_item import CartItem
@@ -108,7 +112,7 @@ class ProductManager(BaseProductManager):
 
 
 @python_2_unicode_compatible
-class Product(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} TranslatableModel,{% endif %} BaseProduct):
+class Product(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} TranslatableModelMixin,{% endif %} BaseProduct):
     """
     Base class to describe a polymorphic product. Here we declare common fields available in all of
     our different product types. These common fields are also used to build up the view displaying
@@ -201,11 +205,12 @@ class ProductTranslation(TranslatedFieldsModel):
     class Meta:
         unique_together = [('language_code', 'master')]
 
-    {%- endif %}{% endif %}
+    {%- endif %}{# cookiecutter.use_i18n == 'y' #}
+    {%- endif %}{# cookiecutter.products_model == 'polymorphic' #}
     {%- if cookiecutter.products_model == 'polymorphic' %}
 
 
-class Commodity(Product):
+class Commodity({% if cookiecutter.stock_management != 'n' %}AvailableProductMixin, {% endif %}Product):
     """
     This Commodity model inherits from polymorphic Product, and therefore has to be redefined.
     """
@@ -221,12 +226,21 @@ class Commodity(Product):
         unique=True,
     )
 
+        {%- if cookiecutter.stock_management == 'simple' %}
+
+    quantity = models.PositiveIntegerField(
+        _("Quantity"),
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text=_("Available quantity in stock")
+    )
+        {%- endif %}
+
     # controlling the catalog
     placeholder = PlaceholderField("Commodity Details")
     show_breadcrumb = True  # hard coded to always show the product's breadcrumb
 
         {%- if cookiecutter.use_i18n == 'y' %}
-
     default_manager = TranslatableManager()
         {%- endif %}
 
@@ -239,8 +253,8 @@ class Commodity(Product):
 
 
 @python_2_unicode_compatible
-class SmartCard(Product):
-        {%- if cookiecutter.use_i18n == 'y' %}
+class SmartCard({% if cookiecutter.stock_management != 'n' %}AvailableProductMixin, {% endif %}Product):
+       {%- if cookiecutter.use_i18n == 'y' %}
     multilingual = TranslatedFields(
         description=HTMLField(
             verbose_name=_("Description"),
@@ -254,7 +268,7 @@ class SmartCard(Product):
 
 
 @python_2_unicode_compatible
-class SmartCard(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} TranslatableModel,{% endif %} BaseProduct):
+class SmartCard(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} TranslatableModelMixin,{% endif %}{% if cookiecutter.stock_management != 'n' %} AvailableProductMixin,{% endif %} BaseProduct):
     product_name = models.CharField(
         max_length=255,
         verbose_name=_("Product Name"),
@@ -307,10 +321,29 @@ class SmartCard(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} Tran
         help_text=_("Net price for this product"),
     )
 
+    card_type = models.CharField(
+        _("Card Type"),
+        choices=[2 * ('{}{}'.format(s, t),)
+                 for t in ['SD', 'SDXC', 'SDHC', 'SDHC II'] for s in ['', 'micro ']],
+        max_length=15,
+    )
+
+    speed = models.CharField(
+        _("Transfer Speed"),
+        choices=[(str(s), "{} MB/s".format(s))
+                 for s in [4, 20, 30, 40, 48, 80, 95, 280]],
+        max_length=8,
+    )
+
     product_code = models.CharField(
         _("Product code"),
         max_length=255,
         unique=True,
+    )
+
+    storage = models.PositiveIntegerField(
+        _("Storage Capacity"),
+        help_text=_("Storage capacity in GB"),
     )
 
     {%- if cookiecutter.use_i18n != 'y' %}
@@ -322,7 +355,15 @@ class SmartCard(CMSPageReferenceMixin,{% if cookiecutter.use_i18n == 'y' %} Tran
     )
 
     {%- endif %}
+    {%- if cookiecutter.stock_management == 'simple' %}
 
+    quantity = models.PositiveIntegerField(
+        _("Quantity"),
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text=_("Available quantity in stock")
+    )
+    {%- endif %}
     class Meta:
         verbose_name = _("Smart Card")
         verbose_name_plural = _("Smart Cards")
@@ -516,6 +557,18 @@ class SmartPhoneModel(Product):
                 self._price = Money()
         return self._price
 
+    {%- if cookiecutter.stock_management != 'n' %}
+
+    def get_availability(self, request, **kwargs):
+        variant = self.get_product_variant(**kwargs)
+        return variant.get_availability(request)
+
+    def deduct_from_stock(self, quantity, **kwargs):
+        variant = self.get_product_variant(**kwargs)
+        variant.deduct_from_stock(quantity)
+
+    {%- endif %}
+
     def is_in_cart(self, cart, watched=False, **kwargs):
         try:
             product_code = kwargs['product_code']
@@ -528,12 +581,13 @@ class SmartPhoneModel(Product):
 
     def get_product_variant(self, **kwargs):
         try:
-            return self.variants.get(**kwargs)
+            product_code = kwargs.get('product_code')
+            return self.variants.get(product_code=product_code)
         except SmartPhoneVariant.DoesNotExist as e:
             raise SmartPhoneModel.DoesNotExist(e)
 
 
-class SmartPhoneVariant(models.Model):
+class SmartPhoneVariant({% if cookiecutter.stock_management != 'n' %}AvailableProductMixin, {% endif %}models.Model):
     product = models.ForeignKey(
         SmartPhoneModel,
         verbose_name=_("Smartphone Model"),
@@ -555,10 +609,69 @@ class SmartPhoneVariant(models.Model):
 
     storage = models.PositiveIntegerField(
         _("Internal Storage"),
-        help_text=_("Internal storage in MB"),
+        help_text=_("Internal storage in GB"),
     )
+
+    {%- if cookiecutter.stock_management == 'simple' %}
+
+    quantity = models.PositiveIntegerField(
+        _("Quantity"),
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text=_("Available quantity in stock")
+    )
+    {%- endif %}
+
+    def __str__(self):
+        return _("{product} with {storage} GB").format(product=self.product, storage=self.storage)
 
     def get_price(self, request):
         return self.unit_price
 
+    {%- if cookiecutter.stock_management == 'inventory' %}
+
+
+class CommodityInventory(BaseInventory):
+    product = models.ForeignKey(
+        Commodity,
+        on_delete=models.CASCADE,
+        related_name='inventory_set',
+    )
+
+    quantity = models.PositiveIntegerField(
+        _("Quantity"),
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text=_("Available quantity in stock")
+    )
+
+class SmartCardInventory(BaseInventory):
+    product = models.ForeignKey(
+        SmartCard,
+        on_delete=models.CASCADE,
+        related_name='inventory_set',
+    )
+
+    quantity = models.PositiveIntegerField(
+        _("Quantity"),
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text=_("Available quantity in stock")
+    )
+
+class SmartPhoneInventory(BaseInventory):
+    product = models.ForeignKey(
+        SmartPhoneVariant,
+        on_delete=models.CASCADE,
+        related_name='inventory_set',
+    )
+
+    quantity = models.PositiveIntegerField(
+        _("Quantity"),
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text=_("Available quantity in stock")
+    )
+
+    {%- endif %}  {# cookiecutter.stock_management == 'inventory' #}
 {%- endif %}

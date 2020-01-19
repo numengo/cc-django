@@ -43,16 +43,6 @@ def remove_gplv3_files():
         os.remove(file_name)
 
 
-def remove_pycharm_files():
-    idea_dir_path = ".idea"
-    if os.path.exists(idea_dir_path):
-        shutil.rmtree(idea_dir_path)
-
-    docs_dir_path = os.path.join("docs", "pycharm")
-    if os.path.exists(docs_dir_path):
-        shutil.rmtree(docs_dir_path)
-
-
 def remove_docker_files():
     shutil.rmtree("compose")
 
@@ -63,6 +53,10 @@ def remove_docker_files():
 
 def remove_utility_files():
     shutil.rmtree("utility")
+
+
+def remove_django_shop_files():
+    shutil.rmtree("{{ cookiecutter.use_django_shop }}/shop")
 
 
 def remove_heroku_files():
@@ -292,9 +286,6 @@ def main():
     if "{{ cookiecutter.license}}" != "GNU General Public License v3":
         remove_gplv3_files()
 
-    if "{{ cookiecutter.use_pycharm }}".lower() == "n":
-        remove_pycharm_files()
-
     if "{{ cookiecutter.use_docker }}".lower() == "y":
         remove_utility_files()
     else:
@@ -302,6 +293,9 @@ def main():
 
     if "{{ cookiecutter.use_heroku }}".lower() == "n":
         remove_heroku_files()
+
+    if "{{ cookiecutter.use_django_shop }}".lower() == "n":
+        remove_django_shop_files()
 
     if (
         "{{ cookiecutter.use_docker }}".lower() == "n"
@@ -320,7 +314,7 @@ def main():
         if "{{ cookiecutter.keep_local_envs_in_vcs }}".lower() == "y":
             append_to_gitignore_file("!.envs/.local/")
 
-    if "{{ cookiecutter.js_task_runner}}".lower() == "none":
+    if "{{ cookiecutter.js_task_runner}}".lower() == "none" and "{{ cookiecutter.use_django_shop }}".lower() != "y":
         remove_gulp_files()
         remove_packagejson_file()
         if "{{ cookiecutter.use_docker }}".lower() == "y":
@@ -339,6 +333,23 @@ def main():
 
     if "{{ cookiecutter.use_travisci }}".lower() == "n":
         remove_dottravisyml_file()
+
+    next_steps = [
+        "Next steps to perform:",
+        "cd {{cookiecutter.repo_name}}"
+    ]
+    if "{{ cookiecutter.use_docker }}".lower() != "y":
+        next_steps += [
+            "npm install",
+            "python ./manage.py migrate",
+            "python ./manage.py initialize_shop_demo",
+            "python ./manage.py runserver",
+        ]
+    else:
+        next_steps += [
+            "docker-compose up --build -d"
+        ]
+    print(HINT + '\n'.join(next_steps) + TERMINATOR)
 
     print(SUCCESS + "Project initialized, keep up the good work!" + TERMINATOR)
 
