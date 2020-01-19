@@ -10,6 +10,7 @@ except ImportError:
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.six.moves import input
+
 try:
     import czipfile as zipfile
 except ImportError:
@@ -19,7 +20,8 @@ except ImportError:
 class Command(BaseCommand):
     version = 18
     help = "Download workdir to run a demo of django-SHOP."
-    download_url = 'http://downloads.django-shop.org/django-shop-workdir-{version}.zip'
+    filename = 'django-shop-workdir-{version}.zip'.format(version=version)
+    download_url = 'http://downloads.django-shop.org/' + filename
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -53,11 +55,19 @@ Type 'yes' to continue, or 'no' to cancel:
                     return
 
         extract_to = os.path.join(settings.WORK_DIR, os.pardir)
-        msg = "Downloading workdir and extracting to {}. Please wait ..."
-        self.stdout.write(msg.format(extract_to))
-        download_url = self.download_url.format(version=self.version)
-        response = requests.get(download_url, stream=True)
-        zip_ref = zipfile.ZipFile(StringIO(response.content))
+
+        filename = os.path.expanduser("~/Downloads/" + self.filename)
+        if not os.path.exists(filename):
+            msg = "Downloading workdir and extracting to {}. Please wait ..."
+            self.stdout.write(msg.format(extract_to))
+            download_url = self.download_url.format(version=self.version)
+            response = requests.get(download_url, stream=True)
+            zip_ref = zipfile.ZipFile(StringIO(response.content))
+        else:
+            msg = "File workdir in Downloads, extracting to {}. Please wait ..."
+            self.stdout.write(msg.format(extract_to))
+            zip_ref = zipfile.ZipFile(filename)
+
         try:
             zip_ref.extractall(extract_to)
         finally:

@@ -42,7 +42,6 @@ urlpatterns = [
 ]
 {%- endif %}
 
-#urlpatterns += i18n_patterns(
 i18n_urls = (
     # Django Admin, use {% raw %}{% url 'admin:index' %}{% endraw %}
     # User management
@@ -54,18 +53,6 @@ i18n_urls = (
     url(r'^', include('cms.urls'), name='home'),
     {%- endif %}
 )
-
-#    # Django Admin, use {% raw %}{% url 'admin:index' %}{% endraw %}
-#    # User management
-#    re_path(r'^accounts/', include('allauth.urls')),
-#    # Your stuff: custom urls includes go here
-#    {% if cookiecutter.use_django_cms == 'y' -%}
-#    re_path(r'^admin/', admin.site.urls, name='admin'),   # NOQA
-#    # CMS - should be last
-#    re_path(r'^', include('cms.urls'), name='home'),
-#    {%- endif %}
-#)
-#urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.USE_I18N:
     urlpatterns.extend(i18n_patterns(*i18n_urls))

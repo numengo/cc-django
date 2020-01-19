@@ -1,8 +1,8 @@
 {% raw %}{% load static cms_tags sekizai_tags djng_tags i18n %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" ng-app="myShop">
+<html lang="{{ LANGUAGE_CODE }}" ng-app="{{ cookiecutter.appName }}Shop">
 <head>
-	<title>{% block title %}django SHOP demo{% endblock %}</title>
+	<title>{% block title %}{{ cookiecutter.projet_name }} Shop demo{% endblock %}</title>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -46,7 +46,7 @@
 
 	{% render_block "js"{% endraw %}{% if cookiecutter.use_compressor == 'y' %} postprocessor "shop.sekizai_processors.compress"{% endif %}{% raw %} %}
 	<script type="text/javascript">
-	angular.module('myShop', ['ngAnimate', 'ngSanitize', {% with_data "ng-requires" as ng_requires %}
+	angular.module('{{ cookiecutter.appName }}Shop', ['ngAnimate', 'ngSanitize', {% with_data "ng-requires" as ng_requires %}
 		{% for module in ng_requires %}'{{ module }}'{% if not forloop.last %}, {% endif %}{% endfor %}{% end_with_data %}
 	]).config(['$httpProvider', '$locationProvider', '$sanitizeProvider', function($httpProvider, $locationProvider, $sanitizeProvider) {
 		$httpProvider.defaults.headers.common['X-CSRFToken'] = '{{ csrf_token }}';

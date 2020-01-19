@@ -9,6 +9,7 @@ except ImportError:
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management import call_command
+from subprocess import call
 from django.utils.translation import ugettext_lazy as _
 try:
     import czipfile as zipfile
@@ -57,21 +58,25 @@ class Command(BaseCommand):
         if os.path.isfile(initialize_file):
             self.stdout.write("Initializing project {{ cookiecutter.app_name }}")
             #call_command('makemigrations', '{{ cookiecutter.app_name }}')
-            #call_command('migrate')
+            call_command('migrate')
             #os.remove(initialize_file)
-            #call_command('loaddata', 'skeleton')
-            #call_command('shop', 'check-pages', add_recommended=True)
-            #call_command('assign_iconfonts')
-            #call_command('create_social_icons')
-            #call_command('download_workdir', interactive=False)
-            #call_command('loaddata', 'products-media')
+            call_command('loaddata', 'skeleton')
+            call_command('shop', 'check-pages', add_recommended=True)
+            call_command('assign_iconfonts')
+            call_command('create_social_icons')
+            call_command('download_workdir', interactive=False)
+            call(['gsed', '-i', '-e', "'s/@example\.com//g'", 'products-media.json'],
+                 cwd=os.path.join(settings.WORK_DIR, 'fixtures'))
+            call_command('loaddata', 'products-media')
 {%- if cookiecutter.products_model == 'polymorphic' %}
             self.create_polymorphic_subcategories()
 {%- endif %}
-            #call_command('import_products')
-            #call_command('initialize_inventories')
+            call_command('import_products')
+{%- if cookiecutter.stock_management == 'inventory' %}
+            call_command('initialize_inventories')
+{%- endif %}
 {%- if cookiecutter.use_sendcloud == 'y' %}
-            #call_command('sendcloud_import')
+            call_command('sendcloud_import')
 {%- endif %}
         else:
             self.stdout.write("Project {{ cookiecutter.app_name }} already initialized")

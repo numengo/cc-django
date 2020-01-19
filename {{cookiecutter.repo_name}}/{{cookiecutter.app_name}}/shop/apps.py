@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 class ShopConfig(AppConfig):
     name = '{{ cookiecutter.app_name }}.shop'
     label = '{{ cookiecutter.app_name }}_shop'
-    verbose_name = _("Shop")
+    verbose_name = _("{{ cookiecutter.project_name }} Shop")
     logger = logging.getLogger('{{ cookiecutter.app_name }}.shop')
 
     def ready(self):

@@ -187,7 +187,7 @@ STATIC_ROOT = str(WORK_DIR.path("staticfiles"))
 STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = [
-    ("static", str(APPS_DIR.path("static"))),
+    ("{{ cookiecutter.app_name }}", str(APPS_DIR.path("static"))),
     ("node_modules", str(ROOT_DIR.path("node_modules"))),
 ]
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
@@ -432,8 +432,8 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
     ],
-    # "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    # "PAGE_SIZE": 16,
+    #"DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    #"PAGE_SIZE": 16,
 }
 
 REST_AUTH_SERIALIZERS = {
@@ -455,7 +455,7 @@ MIDDLEWARE = ["cms.middleware.utils.ApphookReloadMiddleware"] + MIDDLEWARE + [
     "cms.middleware.language.LanguageCookieMiddleware"
 ]
 
-INSTALLED_APPS = ["djangocms_admin_style"] + INSTALLED_APPS + [
+INSTALLED_APPS += [
     "cms",
     "menus",
     "sekizai",
@@ -488,8 +488,8 @@ INSTALLED_APPS = ["djangocms_admin_style"] + INSTALLED_APPS + [
     "fsm_admin",
     "djng",
 
-    #"rest_framework.authtoken",
-    #"rest_auth",
+    "rest_framework.authtoken",
+    "rest_auth",
     "cms_bootstrap",
     "adminsortable2",
     #"email_auth",

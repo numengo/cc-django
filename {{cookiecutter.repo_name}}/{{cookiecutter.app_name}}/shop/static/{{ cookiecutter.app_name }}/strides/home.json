@@ -712,7 +712,7 @@
                                   "link_content":"Nullam",
                                   "link":{
                                     "pk":56,
-                                    "model":"myshop.Product",
+                                    "model":"{{ cookiecutter.app_name }}_shop.Product",
                                     "type":"product"
                                   },
                                   "target":"",
@@ -729,7 +729,7 @@
                                   "link_content":"Cras",
                                   "link":{
                                     "pk":55,
-                                    "model":"myshop.Product",
+                                    "model":"{{ cookiecutter.app_name }}_shop.Product",
                                     "type":"product"
                                   },
                                   "target":"",
@@ -768,7 +768,7 @@
                                   "link_content":"Donec",
                                   "link":{
                                     "pk":50,
-                                    "model":"myshop.Product",
+                                    "model":"{{ cookiecutter.app_name }}_shop.Product",
                                     "type":"product"
                                   },
                                   "target":"",
@@ -793,7 +793,7 @@
                               "link_content":"Proceed",
                               "link":{
                                 "pk":54,
-                                "model":"myshop.Product",
+                                "model":"{{ cookiecutter.app_name }}_shop.Product",
                                 "type":"product"
                               },
                               "button_type":"btn-info",
