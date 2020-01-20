@@ -476,7 +476,7 @@ INSTALLED_APPS += [
     "categories.editor",
 
     "django_select2",
-{%- if cookiecutter.use_django_shop == "y" %}
+    {%- if cookiecutter.use_django_shop == "y" %}
     "cmsplugin_cascade",
     "cmsplugin_cascade.clipboard",
     "cmsplugin_cascade.sharable",
@@ -515,10 +515,14 @@ INSTALLED_APPS += [
 
 # Django CMS configurations
 CMS_TEMPLATES = (
-    ("{{ cookiecutter.app_name }}/pages/default.html", _("Default Page")),
-    ("fullwidth.html", _("Fullwidth")),
-    ("sidebar_left.html", _("Sidebar Left")),
-    ("sidebar_right.html", _("Sidebar Right")),
+    {%- if cookiecutter.use_django_shop == "y" %}
+    ("{{ cookiecutter.app_name }}_shop/pages/default.html", _("Default Page")),
+    {%- else %}
+    ("pages/base_cms.html", _("Default Page")),
+    {%- endif %}
+    ("pages/fullwidth.html", _("Fullwidth")),
+    ("pages/sidebar_left.html", _("Sidebar Left")),
+    ("pages/sidebar_right.html", _("Sidebar Right")),
 )
 
 {%- with languages = cookiecutter.languages.replace(' ', '').split(',') %}
@@ -568,10 +572,11 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
 THUMBNAIL_HIGH_RESOLUTION = False
 
+# https://www.santerref.com/blogue/2015/08/20/optimiser-les-images-avec-optipng-et-jpegoptim/
 THUMBNAIL_OPTIMIZE_COMMAND = {
-    'gif': '/usr/bin/optipng {filename}',
-    'jpeg': '/usr/bin/jpegoptim {filename}',
-    'png': '/usr/bin/optipng {filename}'
+    'gif': '/usr/local/bin/optipng -o5 -strip {filename}',
+    'jpeg': '/usr/local/bin/jpegoptim -m90 --strip-all {filename}',
+    'png': '/usr/local/bin/optipng -o5 -strip all {filename}'
 }
 
 THUMBNAIL_PRESERVE_EXTENSIONS = True
@@ -648,12 +653,12 @@ CMSPLUGIN_CASCADE = {
     "plugins_with_extra_render_templates": {
         "CustomSnippetPlugin": [
             ("shop/catalog/product-heading.html", _("Product Heading")),
-            ("{{ cookiecutter.app_name }}/catalog/manufacturer-filter.html", _("Manufacturer Filter")),
+            ("{{ cookiecutter.app_name }}_shop/catalog/manufacturer-filter.html", _("Manufacturer Filter")),
         ],
         # required to purchase real estate
         "ShopAddToCartPlugin": [
             (None, _("Default")),
-            ("{{ cookiecutter.app_name }}/catalog/commodity-add2cart.html", _("Add Commodity to Cart")),
+            ("{{ cookiecutter.app_name }}_shop/catalog/commodity-add2cart.html", _("Add Commodity to Cart")),
         ],
     },
     "plugins_with_sharables": {

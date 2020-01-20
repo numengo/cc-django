@@ -72,9 +72,9 @@
   "test_requirements": "",
   "_copy_without_render": [
     "*/templates/cms/welcome_.html",
-    "*/templates/base_cms.html",
-    "*/templates/fullwidth.html",
-    "*/templates/sidebar_left.html",
-    "*/templates/sidebar_right.html"
+    "*/templates/pages/base_cms.html",
+    "*/templates/pages/fullwidth.html",
+    "*/templates/pages/sidebar_left.html",
+    "*/templates/pages/sidebar_right.html"
   ]
 }

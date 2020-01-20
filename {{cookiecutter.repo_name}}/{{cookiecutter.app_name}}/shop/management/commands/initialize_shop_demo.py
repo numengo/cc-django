@@ -18,7 +18,7 @@ except ImportError:
 
 
 class Command(BaseCommand):
-    help = _("Initialize the workdir to run the demo of {{ cookiecutter.app_name }}.")
+    help = _("Initialize the workdir to run the shop demo of {{ cookiecutter.app_name }}.")
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -56,7 +56,7 @@ class Command(BaseCommand):
         #call_command('migrate')
         initialize_file = os.path.join(settings.WORK_DIR, '.initialize')
         if os.path.isfile(initialize_file):
-            self.stdout.write("Initializing project {{ cookiecutter.app_name }}")
+            self.stdout.write("Initializing shop for {{ cookiecutter.app_name }}")
             #call_command('makemigrations', '{{ cookiecutter.app_name }}')
             call_command('migrate')
             #os.remove(initialize_file)
@@ -65,8 +65,13 @@ class Command(BaseCommand):
             call_command('assign_iconfonts')
             call_command('create_social_icons')
             call_command('download_workdir', interactive=False)
-            call(['gsed', '-i', '-e', "'s/@example\.com//g'", 'products-media.json'],
-                 cwd=os.path.join(settings.WORK_DIR, 'fixtures'))
+
+            fn = os.path.join(settings.WORK_DIR, 'fixtures', 'products-media.json')
+            with open(fn, 'r') as fin:
+                data = fin.read()
+            data = data.replace('@example.com', '')
+            with open(fn, 'w') as fout:
+                fout.write(data)
             call_command('loaddata', 'products-media')
 {%- if cookiecutter.products_model == 'polymorphic' %}
             self.create_polymorphic_subcategories()
@@ -79,7 +84,7 @@ class Command(BaseCommand):
             call_command('sendcloud_import')
 {%- endif %}
         else:
-            self.stdout.write("Project {{ cookiecutter.app_name }} already initialized")
+            self.stdout.write("Shop for {{ cookiecutter.app_name }} already initialized")
             call_command('migrate')
 
 {%- if cookiecutter.products_model == 'polymorphic' %}

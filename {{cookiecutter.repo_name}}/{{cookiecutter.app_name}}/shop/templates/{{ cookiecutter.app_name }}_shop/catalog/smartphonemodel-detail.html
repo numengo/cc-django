@@ -1,4 +1,4 @@
-{{ '{%' }} extends "{{ cookiecutter.app_name }}/catalog/product-detail.html" {{ '%}' }}
+{{ '{%' }} extends "{{ cookiecutter.app_name }}_shop/catalog/product-detail.html" {{ '%}' }}
 {% raw %}{% load i18n static cms_tags sekizai_tags sass_tags %}
 
 {% block main-content %}
@@ -61,7 +61,7 @@
 			</ul>
 
 			<!-- include "Add to Cart" dialog box -->
-			{% include {% endraw %}"{{ cookiecutter.app_name }}/catalog/smartphone-add2cart.html"{% raw %} with use_modal_dialog=True card_css_classes="mb-3" %}
+			{% include {% endraw %}"{{ cookiecutter.app_name }}_shop/catalog/smartphone-add2cart.html"{% raw %} with use_modal_dialog=True card_css_classes="mb-3" %}
 		</div>
 	</div>
 </div>

@@ -23,7 +23,7 @@ class Command(BaseCommand):
         activate(settings.LANGUAGE_CODE)
         data = []
         for product in Product.objects.all():
-            ProductModel = ContentType.objects.get(app_label='{{ cookiecutter.app_name }}', model=product.product_model)
+            ProductModel = ContentType.objects.get(app_label='{{ cookiecutter.app_name }}_shop', model=product.product_model)
             class_name = '{{ cookiecutter.app_name }}.shop.management.serializers.' + ProductModel.model_class().__name__ + 'Serializer'
             serializer_class = import_string(class_name)
             serializer = serializer_class(product, context={'request': None})
