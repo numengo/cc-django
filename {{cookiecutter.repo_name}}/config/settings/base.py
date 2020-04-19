@@ -19,6 +19,8 @@ APP_NAME = "{{ cookiecutter.app_name }}"
 
 SHORT_DESCRIPTION = "{{ cookiecutter.short_description }}"
 
+LOGO_STATIC_URL = "{{ cookiecutter.app_name }}/{{ cookiecutter.app_name }}-logo.svg"
+
 ROOT_DIR = (
     environ.Path(__file__) - 3
 )  # ({{ cookiecutter.app_name }}/config/settings/base.py - 3 = {{ cookiecutter.app_name }}/)
@@ -103,7 +105,11 @@ THIRD_PARTY_APPS = [
     "django_celery_beat",
 {%- endif %}
     "reversion",
+    "redis_cache",
     "ngoutils",
+    "webmaster_verification",  # forked in django_ngoutils
+    "meta",
+    "robots",
 ]
 
 LOCAL_APPS = [
@@ -213,16 +219,16 @@ TEMPLATES = [
     {
         # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-TEMPLATES-BACKEND
         "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": (APPS_DIR.path('templates'),),
         # https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
-        "APP_DIRS": True,
-        "DIRS": [str(APPS_DIR.path("templates"))],
+        "APP_DIRS": False,
         "OPTIONS": {
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
             # https://docs.djangoproject.com/en/dev/ref/templates/api/#loader-types
-            #"loaders": [
-            #    "django.template.loaders.filesystem.Loader",
-            #    "django.template.loaders.app_directories.Loader"
-            #],
+            "loaders": [
+                "django.template.loaders.filesystem.Loader",
+                "django.template.loaders.app_directories.Loader"
+            ],
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-context-processors
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -244,7 +250,7 @@ TEMPLATES = [
 {%- endif %}
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "{{ cookiecutter.app_name }}.utils.context_processors.settings_context",
+                "ngoutils.context_processors.settings",
             ],
         },
     },
@@ -413,6 +419,11 @@ SOCIALACCOUNT_PROVIDERS = {
 # https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
 INSTALLED_APPS += ["compressor"]
 STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
+# https://www.caktusgroup.com/blog/2012/03/05/using-less-django/
+COMPRESS_PRECOMPILERS = (
+   ('text/less', 'lessc {infile} {outfile}'),
+)
+INTERNAL_IPS = ('127.0.0.1',)
 {% endif %}
 
 {%- if cookiecutter.use_django_rest_framework == "y" %}
@@ -457,6 +468,7 @@ MIDDLEWARE = ["cms.middleware.utils.ApphookReloadMiddleware"] + MIDDLEWARE + [
 
 INSTALLED_APPS += [
     "cms",
+    "ngocms.apps.NgoCmsConfig",
     "menus",
     "sekizai",
     "treebeard",
@@ -470,7 +482,8 @@ INSTALLED_APPS += [
     "djangocms_video",
     "categories",
     "categories.editor",
-
+    "djangocms_page_meta",
+    "djangocms_page_sitemap",
     "django_select2",
     {%- if cookiecutter.use_django_shop == "y" %}
     "cmsplugin_cascade",
@@ -511,10 +524,10 @@ INSTALLED_APPS += [
 
 # Django CMS configurations
 CMS_TEMPLATES = (
+    ("pages/default.html", _("Default Page")),
+    ("pages/default_nav.html", _("Default Page")),
     {%- if cookiecutter.use_django_shop == "y" %}
-    ("{{ cookiecutter.app_name }}_shop/pages/default.html", _("Default Page")),
-    {%- else %}
-    ("pages/base_cms.html", _("Default Page")),
+    ("{{ cookiecutter.app_name }}_shop/pages/default.html", _("Default Page Shop")),
     {%- endif %}
     ("pages/fullwidth.html", _("Fullwidth")),
     ("pages/sidebar_left.html", _("Sidebar Left")),
@@ -570,9 +583,9 @@ THUMBNAIL_HIGH_RESOLUTION = False
 
 # https://www.santerref.com/blogue/2015/08/20/optimiser-les-images-avec-optipng-et-jpegoptim/
 THUMBNAIL_OPTIMIZE_COMMAND = {
-    'gif': '/usr/local/bin/optipng -o5 -strip {filename}',
-    'jpeg': '/usr/local/bin/jpegoptim -m90 --strip-all {filename}',
-    'png': '/usr/local/bin/optipng -o5 -strip all {filename}'
+    'gif': '/usr/local/bin/optipng -o5 -quiet {filename}',
+    'jpeg': '/usr/local/bin/jpegoptim -f --strip-all -quiet {filename}',
+    'png': '/usr/local/bin/optipng -o5 -f4 --quiet {filename}',
 }
 
 THUMBNAIL_PRESERVE_EXTENSIONS = True
@@ -826,41 +839,6 @@ SHOP_CASCADE_FORMS = {
 }
 
 ############################################
-# settings for caching and storing session data
-REDIS_HOST = os.getenv('REDIS_HOST')
-if REDIS_HOST:
-    SESSION_ENGINE = 'redis_sessions.session'
-
-    SESSION_REDIS = {
-        'host': REDIS_HOST,
-        'port': 6379,
-        'db': 0,
-        'prefix': 'session-',
-        'socket_timeout': 1
-    }
-
-    CACHES['default'] = {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'redis://{}:6379/1'.format(REDIS_HOST),
-        'OPTIONS': {
-            'PICKLE_VERSION': 2 if six.PY2 else -1,
-        }
-    }
-{% if cookiecutter.use_compressor == 'y' %}
-    COMPRESS_CACHE_BACKEND = 'compressor'
-    CACHES[COMPRESS_CACHE_BACKEND] = {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'redis://{}:6379/2'.format(REDIS_HOST),
-    }
-{% endif %}
-    CACHE_MIDDLEWARE_ALIAS = 'default'
-    CACHE_MIDDLEWARE_SECONDS = 3600
-else:
-    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-
-SESSION_SAVE_EVERY_REQUEST = True
-
-############################################
 # settings for third party Django apps
 POST_OFFICE = {
     "TEMPLATE_ENGINE": "post_office",
@@ -870,19 +848,30 @@ NODE_MODULES_URL = STATIC_URL + "node_modules/"
 
 SASS_PROCESSOR_INCLUDE_DIRS = [
     str(ROOT_DIR.path("node_modules")),
+    str(APPS_DIR.path("static")),
 ]
 
 COERCE_DECIMAL_TO_STRING = True
 
 FSM_ADMIN_FORCE_PERMIT = True
 
-ROBOTS_META_TAGS = ("noindex", "nofollow")
-
 SERIALIZATION_MODULES = {"json": str("shop.money.serializers")}
     {%- endif %}{# cookiecutter.use_django_shop == "y" #}
 
 {%- endif %} {# cookiecutter.use_django_cms == "y" #}
 
+############################################
+# settings for meta data
+
+META_USE_SITES = True
+META_USE_OG_PROPERTIES = True
+META_USE_TWITTER_PROPERTIES = True
+META_USE_GOOGLEPLUS_PROPERTIES = True
+META_INCLUDE_KEYWORDS = True
+
+ROBOTS_SITEMAP_VIEW_NAME = 'cached-sitemap'
+ROBOTS_USE_SITEMAP = True
+#
 #### PROTECTED REGION ID({{ cookiecutter.app_name }}.settings.user) ENABLED START ####
 # Your stuff...
 # ------------------------------------------------------------------------------

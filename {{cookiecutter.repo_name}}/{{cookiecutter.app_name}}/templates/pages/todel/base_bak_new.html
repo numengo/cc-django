@@ -1,7 +1,10 @@
 {% raw %}{% load static cms_tags sekizai_tags djng_tags i18n %}
-{% extends "pages/base.html" %}
+{% extends "ngocms/pages/base.html" %}
+
 {% block toast-messages %}{% include "shop/messages.html" %}{% endblock %}
+
 {% block "js"{% endraw %}{% if cookiecutter.use_compressor == 'y' %} postprocessor "shop.sekizai_processors.compress"{% endif %}{% raw %} %}
+
 {% block ngjs %}
 <script type="text/javascript">
 	angular.module('{% endraw %}{{ cookiecutter.appName }}{% raw %}Shop', ['ngAnimate', 'ngSanitize', {% with_data "ng-requires" as ng_requires %}

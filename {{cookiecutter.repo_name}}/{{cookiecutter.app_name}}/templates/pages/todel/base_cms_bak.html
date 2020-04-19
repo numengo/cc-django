@@ -1,7 +1,10 @@
-{% load cms_tags menu_tags sekizai_tags %}
+{% raw %}{% load static cms_tags menu_tags sekizai_tags djng_tags i18n meta %}
+% load page_meta_tags %}
+{% page_meta request.current_page as page_meta %}
 <!doctype html>
-<html>
-    <head>
+<html {% meta_namespaces_gplus %}>
+    <head {% meta_namespaces %>
+        {% include 'djangocms_page_meta/meta.html' with meta=page_meta %}
         <title>{% block title %}This is {% endraw %}{{ cookiecutter.project_name }}{% raw %} home page{% endblock title %}</title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <style type="text/css">
@@ -39,3 +42,4 @@
         {% render_block "js" %}
     </body>
 </html>
+ {% endraw %}

@@ -33,7 +33,7 @@
     "GCP",
     "None"
   ],
-  "custom_bootstrap_compilation": "n",
+  "custom_bootstrap_compilation": "y",
   "use_compressor": "y",
   "use_celery": "n",
   "use_mailhog": "n",
@@ -72,9 +72,6 @@
   "test_requirements": "",
   "_copy_without_render": [
     "*/templates/cms/welcome_.html",
-    "*/templates/pages/base_cms.html",
-    "*/templates/pages/fullwidth.html",
-    "*/templates/pages/sidebar_left.html",
-    "*/templates/pages/sidebar_right.html"
+    "*/templates/*/todel/*"
   ]
 }

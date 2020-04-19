@@ -53,14 +53,14 @@ class Command(BaseCommand):
 {%- if cookiecutter.use_compressor == 'y' %}
         self.clear_compressor_cache()
 {%- endif %}
-        #call_command('migrate')
-        initialize_file = os.path.join(settings.WORK_DIR, '.initialize')
+        call_command('migrate')
+        initialize_file = os.path.join(settings.WORK_DIR, '.initialize_shop')
         if os.path.isfile(initialize_file):
             self.stdout.write("Initializing shop for {{ cookiecutter.app_name }}")
             #call_command('makemigrations', '{{ cookiecutter.app_name }}')
-            call_command('migrate')
             #os.remove(initialize_file)
-            call_command('loaddata', 'skeleton')
+            call_command('loaddata', 'minimal')
+            call_command('loaddata', 'shop_skeleton')
             call_command('shop', 'check-pages', add_recommended=True)
             call_command('assign_iconfonts')
             call_command('create_social_icons')
@@ -85,7 +85,6 @@ class Command(BaseCommand):
 {%- endif %}
         else:
             self.stdout.write("Shop for {{ cookiecutter.app_name }} already initialized")
-            call_command('migrate')
 
 {%- if cookiecutter.products_model == 'polymorphic' %}
 

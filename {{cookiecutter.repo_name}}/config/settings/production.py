@@ -25,7 +25,7 @@ ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["{{ cookiecutter.domai
 # ------------------------------------------------------------------------------
 DATABASES["default"] = env.db("DATABASE_URL")  # noqa F405
 DATABASES["default"]["ATOMIC_REQUESTS"] = True  # noqa F405
-DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)  # noqa F405
+DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=600)  # noqa F405
 
 # CACHES
 # ------------------------------------------------------------------------------
@@ -41,6 +41,12 @@ CACHES = {
         },
     }
 }
+
+# SESSIONS
+# ------------------------------------------------------------------------------
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+SESSION_SAVE_EVERY_REQUEST = True
 
 # SECURITY
 # ------------------------------------------------------------------------------
@@ -66,6 +72,8 @@ SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)
 SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
     "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True
 )
+
+META_SITE_PROTOCOL = 'https'
 
 # DJANGO SHOP PAYMENTS
 # ------------------------------------------------------------------------------
@@ -177,6 +185,7 @@ MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
 # TEMPLATES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#templates
+TEMPLATES[0]["APP_DIRS"] = False
 TEMPLATES[0]["OPTIONS"]["loaders"] = [  # noqa F405
     (
         "django.template.loaders.cached.Loader",

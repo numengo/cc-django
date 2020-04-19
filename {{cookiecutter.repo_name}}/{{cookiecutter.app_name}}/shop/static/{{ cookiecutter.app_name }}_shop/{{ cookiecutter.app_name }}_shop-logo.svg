@@ -19,7 +19,7 @@
    enable-background="new 0 0 453.54 85.04"
    xml:space="preserve"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="{{ cookiecutter.app_name }}-logo.svg"><metadata
+   sodipodi:docname="{{ cookiecutter.app_name }}_shop-logo.svg"><metadata
      id="metadata31"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs

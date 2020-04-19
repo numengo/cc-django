@@ -1,121 +1,67 @@
-{% raw %}{% load static i18n {% endraw %}{% if cookiecutter.use_compressor == "y" %}compress{% endif %}{% raw %}%}<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %}{% endraw %}{{ cookiecutter.project_name }}{% raw %}{% endblock title %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+{% raw %}{% load static cms_tags sekizai_tags djng_tags i18n meta page_meta_tags robots_index page_alternate %}
+{% page_meta request.current_page as page_meta %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" ng-app="{{ settings.APP_NAME }}">
+<head {% meta_namespaces %}>
+	<title>{% block title %}{% page_attribute "page_title" %}{% endblock %}</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	{% page_robots %}
+    {% include 'djangocms_page_meta/meta.html' with meta=page_meta %}
+    {% page_alternate %}
+	{% block head %}{% endblock head %}
+	{% render_block "css" postprocessor "shop.sekizai_processors.compress" %}
+</head>
 
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <![endif]-->
+{% addtoblock "js" %}<script src="{% static 'node_modules/angular/angular.min.js' %}" type="text/javascript"></script>{% endaddtoblock %}
+{% addtoblock "js" %}<script src="{% static 'node_modules/angular-sanitize/angular-sanitize.min.js' %}" type="text/javascript"></script>{% endaddtoblock %}
+{% addtoblock "js" %}<script src="{% static 'node_modules/angular-i18n/' %}{% djng_locale_script 'de' %}" type="text/javascript"></script>{% endaddtoblock %}
+{% addtoblock "js" %}<script src="{% static 'node_modules/angular-animate/angular-animate.min.js' %}" type="text/javascript"></script>{% endaddtoblock %}
 
-    <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
+<body {% googleplus_html_scope meta.gplus_type %}>
+	{% cms_toolbar %}
+	<header>
+	{% block header %}{% endblock %}
+	</header>
+	{% block toast-messages %}{% endblock %}
+	<main>
+	{% block breadcrumb %}{% endblock %}
 
-    {% block css %}
-    {% endraw %}{% if cookiecutter.custom_bootstrap_compilation == "n" %}{% raw %}
-    <!-- Latest compiled and minified Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    {% endraw %}{% endif %}{% raw %}
+	{% block main-content %}
+		<div class="container">
+			<div class="row shop-starter-template">
+				<div class="col">
+					<h1>Base Template</h1>
+					<p class="lead">This document does not contain any content yet.</p>
+				</div>
+			</div>
+		</div>
+	{% endblock main-content %}
+	</main>
 
-    <!-- Your stuff: Third-party CSS libraries go here -->
-    {% endraw %}{% if cookiecutter.use_compressor == "y" %}{% raw %}{% compress css %}{% endraw %}{% endif %}{% raw %}
-    <!-- This file stores project-specific CSS -->
-    {% endraw %}{% if cookiecutter.js_task_runner == "Gulp" and cookiecutter.use_compressor == "n" %}{% raw %}
-    <link href="{% static 'css/project.min.css' %}" rel="stylesheet">
-    {% endraw %}{% else %}{% raw %}
-    <link href="{% static 'css/project.css' %}" rel="stylesheet">
-    {% endraw %}{% endif %}{% raw %}
-    {% endraw %}{% if cookiecutter.use_compressor == "y" %}{% raw %}{% endcompress %}{% endraw %}{% endif %}{% raw %}
-    {% endblock %}
+	<footer class="footer">
+	{% block footer %}{% endblock footer %}
+	</footer>
 
-  </head>
+	{% render_block "js" postprocessor "shop.sekizai_processors.compress" %}
+	<script type="text/javascript">
+	angular.module('{{ settings.APP_NAME }}', ['ngAnimate', 'ngSanitize', {% with_data "ng-requires" as ng_requires %}
+		{% for module in ng_requires %}'{{ module }}'{% if not forloop.last %}, {% endif %}{% endfor %}{% end_with_data %}
+	]).config(['$httpProvider', '$locationProvider', '$sanitizeProvider', function($httpProvider, $locationProvider, $sanitizeProvider) {
+		$httpProvider.defaults.headers.common['X-CSRFToken'] = '{{ csrf_token }}';
+		$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+		$locationProvider.html5Mode({
+			enabled: true,
+			requireBase: false,
+			rewriteLinks: false
+		});
+		$sanitizeProvider.addValidAttrs(['srcset']);
+	}]){% with_data "ng-config" as configs %}
+		{% for config in configs %}.config({{ config }}){% endfor %};
+	{% end_with_data %}
+	</script>
+</body>
 
-  <body>
-
-    <div class="mb-1">
-      <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <a class="navbar-brand" href="{% url 'home' %}">{% endraw %}{{ cookiecutter.project_name }}{% raw %}</a>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'about' %}">About</a>
-            </li>
-            {% if request.user.is_authenticated %}
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a class="nav-link" href="{% url 'users:detail' request.user.username  %}">{% trans "My Profile" %}</a>
-              </li>
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Sign Out" %}</a>
-              </li>
-            {% else %}
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a id="sign-up-link" class="nav-link" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
-              </li>
-              <li class="nav-item">
-                {# URL provided by django-allauth/account/urls.py #}
-                <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% trans "Sign In" %}</a>
-              </li>
-            {% endif %}
-          </ul>
-        </div>
-      </nav>
-
-    </div>
-
-    <div class="container">
-
-      {% if messages %}
-          {% for message in messages %}
-              <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
-          {% endfor %}
-      {% endif %}
-
-      {% block content %}
-        <p>Use this document as a way to quick start any new project.</p>
-      {% endblock content %}
-
-    </div> <!-- /container -->
-
-    {% block modal %}{% endblock modal %}
-
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    {% block javascript %}
-      {% endraw %}{% if cookiecutter.custom_bootstrap_compilation == "y" and cookiecutter.js_task_runner == "Gulp" %}{% raw %}
-      <!-- Vendor dependencies bundled as one file-->
-      {% endraw %}{% if cookiecutter.use_compressor == "y" %}{% raw %}{% compress js %}{% endraw %}{% endif %}{% raw %}
-      <script src="{% static 'js/vendors.js' %}"></script>
-      {% endraw %}{% if cookiecutter.use_compressor == "y" %}{% raw %}{% endcompress %}{% endraw %}{% endif %}{% raw %}
-      {% endraw %}{% else %}{% raw %}
-      <!-- Bootstrap JS and its dependencies-->
-      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-      <!-- Your stuff: Third-party javascript libraries go here -->
-      {% endraw %}{% endif %}{% raw %}
-
-      <!-- place project specific Javascript in this file -->
-      {% endraw %}{% if cookiecutter.use_compressor == "y" %}{% raw %}{% compress js %}{% endraw %}{% endif %}{% raw %}
-      <script src="{% static 'js/project.js' %}"></script>
-      {% endraw %}{% if cookiecutter.use_compressor == "y" %}{% raw %}{% endcompress %}{% endraw %}{% endif %}{% raw %}
-
-    {% endblock javascript %}
-  </body>
 </html>
- {% endraw %}
+{% endraw %}

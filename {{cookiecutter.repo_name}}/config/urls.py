@@ -6,21 +6,16 @@ from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
-from django.contrib.sitemaps.views import sitemap
+from django.contrib.sitemaps.views import sitemap as sitemap_view
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.http import HttpResponse
-
-def render_robots(request):
-    permission = 'noindex' in settings.ROBOTS_META_TAGS and 'Disallow' or 'Allow'
-    return HttpResponse('User-Agent: *\n%s: /\n' % permission, content_type='text/plain')
-
+from django.views.decorators.cache import cache_page
 
 {% if cookiecutter.use_django_cms == 'y' -%}
 sitemaps = {}
 
-from cms.sitemaps import CMSSitemap
-sitemaps['cmspages'] = CMSSitemap
+from djangocms_page_sitemap.sitemap import ExtendedSitemap
+sitemaps['cmspages'] = ExtendedSitemap
 
     {% if cookiecutter.use_django_shop == 'y' %}
 from {{ cookiecutter.app_name }}.shop.sitemap import ProductSitemap
@@ -28,8 +23,9 @@ sitemaps['products'] = ProductSitemap
     {%- endif %}
 
 urlpatterns = [
-    url(r'^robots\.txt$', render_robots),
-    url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    url(r'^robots\.txt', include('robots.urls')),
+    url(r'^sitemap\.xml$', cache_page(60)(sitemap_view), {'sitemaps': sitemaps}, name='cached-sitemap'),
+    url(r'^', include('webmaster_verification.urls')),
     {% if cookiecutter.use_django_shop == 'y' -%}
     url(r'^shop/', include('shop.urls', namespace='shop')),
     {%- endif %}

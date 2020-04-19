@@ -1,5 +1,6 @@
 from .base import *  # noqa
 from .base import env
+import six
 from django.utils.translation import ugettext_lazy as _
 
 # GENERAL
@@ -23,6 +24,42 @@ CACHES = {
         "LOCATION": "",
     }
 }
+
+############################################
+# settings for caching and storing session data
+REDIS_HOST = os.getenv('REDIS_HOST')
+if REDIS_HOST:
+    SESSION_ENGINE = 'redis_sessions.session'
+
+    SESSION_REDIS = {
+        'host': REDIS_HOST,
+        'port': 6379,
+        'db': 0,
+        'prefix': 'session-',
+        'socket_timeout': 1
+    }
+
+    CACHES['default'] = {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis://{}:6379/1'.format(REDIS_HOST),
+        'OPTIONS': {
+            'PICKLE_VERSION': 2 if six.PY2 else -1,
+        }
+    }
+{% if cookiecutter.use_compressor == 'y' %}
+    COMPRESS_CACHE_BACKEND = 'compressor'
+    CACHES[COMPRESS_CACHE_BACKEND] = {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis://{}:6379/2'.format(REDIS_HOST),
+    }
+{% endif %}
+    CACHE_MIDDLEWARE_ALIAS = 'default'
+    CACHE_MIDDLEWARE_SECONDS = 3600
+else:
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+SESSION_SAVE_EVERY_REQUEST = True
+
 
 # EMAIL
 # ------------------------------------------------------------------------------
@@ -80,6 +117,9 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#internal-ips
 INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
+
+META_SITE_PROTOCOL = 'http'
+
 {% if cookiecutter.use_docker == 'y' -%}
 if env("USE_DOCKER") == "yes":
     import socket
