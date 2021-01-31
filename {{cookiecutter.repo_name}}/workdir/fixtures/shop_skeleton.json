@@ -165,7 +165,7 @@
   "fields": {
     "plugin_type": "SimpleIconPlugin",
     "site": [
-      "{% endraw %}{{ cookiecutter.domain_name }}{% raw %}"
+      "{% endraw %}{{ cookiecutter.domain }}{% raw %}"
     ],
     "allow_id_tag": false,
     "css_classes": "{\"class_names\":\"nav-link\",\"multiple\":\"\"}",

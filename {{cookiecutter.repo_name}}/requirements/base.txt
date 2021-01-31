@@ -86,27 +86,27 @@ html5lib>=1.0.1
 #Django-Select2
 
 # Django filer plugin
-django-filer
-easy-thumbnails
-django-categories # https://github.com/callowayproject/django-categories
+django-filer>=1.5
+easy-thumbnails>=2.6
+django-categories>=1.6 # https://github.com/callowayproject/django-categories
 
 {%- if cookiecutter.use_django_shop == 'y' %}
-django-angular
-djangocms-bootstrap
-libsass
-django-sass-processor
-django_filters
-django-parler
-django-parler-rest
-drf-haystack
+django-angular>=2.3
+djangocms-bootstrap>=1.1
+libsass>=0.20
+django-sass-processor>=0.8
+django_filter<2.3
+django-parler>=2.2
+django-parler-rest>=2.1
+drf-haystack>=1.8,<1.8.7
 elasticsearch>=1.0.0,<2.0.0
-django-post_office
+django-post_office<3.3
 {%- endif %}
 {%- if cookiecutter.use_paypal == 'y' %}
 djangoshop-paypal
 {%- endif %}
 {%- if cookiecutter.use_stripe == 'y' %}
-djangoshop-stripe
+djangoshop-stripe>=1.2
 {%- endif %}
 {%- if cookiecutter.use_sendcloud == 'y' %}
 djangoshop-sendcloud

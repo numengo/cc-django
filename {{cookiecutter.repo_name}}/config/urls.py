@@ -10,6 +10,8 @@ from django.contrib.sitemaps.views import sitemap as sitemap_view
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.decorators.cache import cache_page
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.views.generic.base import RedirectView
 
 {% if cookiecutter.use_django_cms == 'y' -%}
 sitemaps = {}
@@ -23,6 +25,7 @@ sitemaps['products'] = ProductSitemap
     {%- endif %}
 
 urlpatterns = [
+    url('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('{{ cookiecutter.app_name }}/images/favicons/favicon.ico'))),
     url(r'^robots\.txt', include('robots.urls')),
     url(r'^sitemap\.xml$', cache_page(60)(sitemap_view), {'sitemaps': sitemaps}, name='cached-sitemap'),
     url(r'^', include('webmaster_verification.urls')),

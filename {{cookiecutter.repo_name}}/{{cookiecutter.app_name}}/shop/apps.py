@@ -12,7 +12,7 @@ class ShopConfig(AppConfig):
     name = '{{ cookiecutter.app_name }}.shop'
     label = '{{ cookiecutter.app_name }}_shop'
     verbose_name = _("{{ cookiecutter.project_name }} Shop")
-    logger = logging.getLogger('{{ cookiecutter.app_name }}.shop')
+    _logger = logging.getLogger('{{ cookiecutter.app_name }}.shop')
 
     def ready(self):
         if not os.path.isdir(settings.STATIC_ROOT):
@@ -22,4 +22,4 @@ class ShopConfig(AppConfig):
         if hasattr(settings, 'COMPRESS_ROOT') and not os.path.isdir(settings.COMPRESS_ROOT):
            os.makedirs(settings.COMPRESS_ROOT)
         as_i18n = {% if cookiecutter.use_i18n == 'y' %}" as I18N"{% else %}""{% endif %}
-        self.logger.debug("Running as {{ cookiecutter.products_model }}{}".format(as_i18n))
+        self._logger.debug("Running as {{ cookiecutter.products_model }}{}".format(as_i18n))

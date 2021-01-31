@@ -21,6 +21,8 @@ SHORT_DESCRIPTION = "{{ cookiecutter.short_description }}"
 
 LOGO_STATIC_URL = "{{ cookiecutter.app_name }}/{{ cookiecutter.app_name }}-logo.svg"
 
+FAVICON_STATIC_URL = "{{ cookiecutter.app_name }}/images/favicons/favicon.ico"
+
 ROOT_DIR = (
     environ.Path(__file__) - 3
 )  # ({{ cookiecutter.app_name }}/config/settings/base.py - 3 = {{ cookiecutter.app_name }}/)
@@ -107,6 +109,7 @@ THIRD_PARTY_APPS = [
     "reversion",
     "redis_cache",
     "ngoutils",
+    "ngoschema", # for NamedEntity declared in ngoschema_plus
     "webmaster_verification",  # forked in django_ngoutils
     "meta",
     "robots",
@@ -485,7 +488,6 @@ INSTALLED_APPS += [
     "djangocms_page_meta",
     "djangocms_page_sitemap",
     "django_select2",
-    {%- if cookiecutter.use_django_shop == "y" %}
     "cmsplugin_cascade",
     "cmsplugin_cascade.clipboard",
     "cmsplugin_cascade.sharable",
@@ -493,13 +495,14 @@ INSTALLED_APPS += [
     "cmsplugin_cascade.icon",
     "cmsplugin_cascade.segmentation",
     "sass_processor",
+    "cms_bootstrap",
+    {%- if cookiecutter.use_django_shop == "y" %}
     "django_fsm",
     "fsm_admin",
     "djng",
 
     "rest_framework.authtoken",
     "rest_auth",
-    "cms_bootstrap",
     "adminsortable2",
     #"email_auth",
     "django_filters",
@@ -583,9 +586,9 @@ THUMBNAIL_HIGH_RESOLUTION = False
 
 # https://www.santerref.com/blogue/2015/08/20/optimiser-les-images-avec-optipng-et-jpegoptim/
 THUMBNAIL_OPTIMIZE_COMMAND = {
-    'gif': '/usr/local/bin/optipng -o5 -quiet {filename}',
-    'jpeg': '/usr/local/bin/jpegoptim -f --strip-all -quiet {filename}',
-    'png': '/usr/local/bin/optipng -o5 -f4 --quiet {filename}',
+    'gif': '/usr/local/bin/optipng -o5 -quiet "{filename}"',
+    'jpeg': '/usr/local/bin/jpegoptim -f --strip-all --quiet "{filename}"',
+    'png': '/usr/local/bin/optipng -o5 -f4 --quiet "{filename}"',
 }
 
 THUMBNAIL_PRESERVE_EXTENSIONS = True
@@ -638,7 +641,6 @@ CMS_PLACEHOLDER_CONF = {
     {% endif -%}
 }
 
-    {%- if cookiecutter.use_django_shop == "y" %}
 CMSPLUGIN_CASCADE_PLUGINS = [
     "cmsplugin_cascade.bootstrap4",
     "cmsplugin_cascade.segmentation",
@@ -648,6 +650,15 @@ CMSPLUGIN_CASCADE_PLUGINS = [
     "cmsplugin_cascade.link",
     "shop.cascade",
 ]
+    {% if cookiecutter.use_django_shop == "y" %}
+
+SHOP_CURRENCIES=[ # lowercase codes, please
+#### PROTECTED REGION ID({{ cookiecutter.app_name }}.settings.currencies) ENABLED START ####
+    ['eur', 'euro'],
+#### PROTECTED REGION END ####
+]
+
+CMSPLUGIN_CASCADE_PLUGINS += ["shop.cascade"]
 
 CMSPLUGIN_CASCADE = {
     "link_plugin_classes": [

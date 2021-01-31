@@ -9,7 +9,7 @@ __version_info__ = tuple(
 from simple_settings import LazySettings
 settings = LazySettings('{{ cookiecutter.repo_name }}.config.settings', '{{ cookiecutter.app_name | upper }}.environ')
 
-from ngoschema.utils import register_module
+from ngoschema.loaders import register_module
 register_module('{{ cookiecutter.app_name }}')
 
 __all__ = [

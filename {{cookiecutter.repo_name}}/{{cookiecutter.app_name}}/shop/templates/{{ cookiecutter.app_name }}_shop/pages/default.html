@@ -1,6 +1,10 @@
-{% raw %}
+{% raw %}{% extends "{% endraw %}{{ cookiecutter.app_name }}{% raw %}_shop/pages/base.html" %}
 {% load static cms_tags i18n sekizai_tags sass_tags %}
-{% extends "{% endraw %}{{ cookiecutter.app_name }}{% raw %}_shop/pages/base.html" %}
+
+{% block head %}
+	{{ block.super }}
+    {% addtoblock "css" %}<link href="{% sass_src '{% endraw %}{{ cookiecutter.app_name }}/css/{{ cookiecutter.app_name }}{% raw %}.scss' %}" rel="stylesheet" type="text/css" />{% endaddtoblock %}
+{% endblock head %}
 
 {% block header %}
 	{% include {% endraw %}"{{ cookiecutter.app_name }}_shop/pages/navbar.html"{% raw %} with navbar_classes="navbar-expand-lg navbar-light bg-light fixed-top" %}

@@ -22,6 +22,9 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "",
+    },
+    "select2": {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
 

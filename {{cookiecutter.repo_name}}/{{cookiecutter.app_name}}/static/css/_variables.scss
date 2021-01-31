@@ -1,4 +1,6 @@
+{% if cookiecutter.use_django_shop == 'y' %}
 @import "shop/css/variables";
+{% endif %}
 
 // header
 $body-header-height: 50px;
@@ -12,3 +14,7 @@ $body-footer-border: $gray-900;
 $body-footer-link-color: darken($body-footer-color, 15%);
 $body-footer-link-hover-color: $body-footer-color;
 $body-footer-link-active-color: $body-footer-color;
+
+// PROTECTED REGION ID({{cookiecutter.app_name}}.static.css.main) ENABLED START
+
+// PROTECTED REGION END

@@ -5,4 +5,8 @@
 @import "shop/css/django-shop";
 @import "navbar";
 @import "footer";
+
+// PROTECTED REGION ID({{cookiecutter.app_name}}.static.css.{{cookiecutter.app_name}}) ENABLED START
+
+// PROTECTED REGION END
 {% endif %}

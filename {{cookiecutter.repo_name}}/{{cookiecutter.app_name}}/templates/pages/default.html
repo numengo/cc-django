@@ -5,7 +5,7 @@
 
 {% block head %}
 	{{ block.super }}
-	{% addtoblock "css" %}<link href="{% sass_src '/{% endraw %}{{ cookiecutter.app_name }}/sass/{{ cookiecutter.app_name }}{% raw %}.scss' %}" rel="stylesheet" type="text/css" />{% endaddtoblock %}
+	{% addtoblock "css" %}<link href="{% sass_src '{% endraw %}{{ cookiecutter.app_name }}/css/{{ cookiecutter.app_name }}{% raw %}.scss' %}" rel="stylesheet" type="text/css" />{% endaddtoblock %}
 {% endblock head %}
 
 {% block header %}

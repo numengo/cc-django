@@ -18,7 +18,7 @@
 <attribute NAME="version" VALUE="{{cookiecutter.version}}"/>
 <attribute NAME="$id" VALUE="{{cookiecutter.domain}}#"/>
 <attribute NAME="domain" VALUE="{{cookiecutter.domain}}"/>
-<attribute NAME="domain_name" VALUE="{{cookiecutter.domain_name}}"/>
+<attribute NAME="ns_name" VALUE="{{cookiecutter.ns_name}}"/>
 <attribute NAME="app_name" VALUE="{{cookiecutter.app_name}}"/>
 <attribute NAME="repo_name" VALUE="{{cookiecutter.repo_name}}"/>
 <attribute NAME="languages" VALUE="{{cookiecutter.languages}}"/>
